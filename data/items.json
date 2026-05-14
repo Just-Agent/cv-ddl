@@ -1,41 +1,5 @@
 [
   {
-    "id": "cv-ddl-1",
-    "title": "CVPR 2027 Abstract Registration",
-    "deadline": "2026-11-07T23:59:59",
-    "dateRange": "2026-11-07",
-    "location": "Online",
-    "isOnline": true,
-    "tags": [
-      "CVPR",
-      "Main Conference"
-    ],
-    "url": "https://cvpr.thecvf.com",
-    "status": "upcoming",
-    "stage": "Abstract",
-    "source": "AllConfs-style seed",
-    "type": "conference",
-    "description": "计算机视觉主会示例。"
-  },
-  {
-    "id": "cv-ddl-2",
-    "title": "ICCV 2027 Paper Submission",
-    "deadline": "2027-03-17T23:59:59",
-    "dateRange": "2027-03-17",
-    "location": "Online",
-    "isOnline": true,
-    "tags": [
-      "ICCV",
-      "Vision"
-    ],
-    "url": "https://iccv.thecvf.com",
-    "status": "upcoming",
-    "stage": "Paper",
-    "source": "Demo seed",
-    "type": "conference",
-    "description": "ICCV 主会投稿 demo。"
-  },
-  {
     "id": "cv-ddl-3",
     "title": "ECCV 2026 Camera Ready",
     "deadline": "2026-07-20T23:59:59",
@@ -70,5 +34,41 @@
     "source": "Kaggle-style demo",
     "type": "challenge",
     "description": "视觉挑战赛样例。"
+  },
+  {
+    "id": "cv-ddl-1",
+    "title": "CVPR 2027 Abstract Registration",
+    "deadline": "2026-11-07T23:59:59",
+    "dateRange": "2026-11-07",
+    "location": "Online",
+    "isOnline": true,
+    "tags": [
+      "CVPR",
+      "Main Conference"
+    ],
+    "url": "https://cvpr.thecvf.com",
+    "status": "upcoming",
+    "stage": "Abstract",
+    "source": "AllConfs-style seed",
+    "type": "conference",
+    "description": "计算机视觉主会示例。"
+  },
+  {
+    "id": "cv-ddl-2",
+    "title": "ICCV 2027 Paper Submission",
+    "deadline": "2027-03-17T23:59:59",
+    "dateRange": "2027-03-17",
+    "location": "Online",
+    "isOnline": true,
+    "tags": [
+      "ICCV",
+      "Vision"
+    ],
+    "url": "https://iccv.thecvf.com",
+    "status": "upcoming",
+    "stage": "Paper",
+    "source": "Demo seed",
+    "type": "conference",
+    "description": "ICCV 主会投稿 demo。"
   }
 ]
