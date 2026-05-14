@@ -14,9 +14,16 @@
     "parser": "generic-link-date"
   },
   {
-    "id": "competehub",
-    "name": "CompeteHub",
-    "url": "https://www.competehub.dev/zh",
+    "id": "thecvf",
+    "name": "The CVF",
+    "url": "https://www.thecvf.com",
+    "priority": "official-network",
+    "parser": "generic-link-date"
+  },
+  {
+    "id": "kaggle-vision",
+    "name": "Kaggle Vision Competitions",
+    "url": "https://www.kaggle.com/competitions",
     "priority": "competition-aggregator",
     "parser": "generic-link-date"
   }
