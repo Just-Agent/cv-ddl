@@ -40,7 +40,7 @@ jobs:
           if-no-files-found: error
       - name: Create data refresh pull request
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.JUST_DDL_BOT_TOKEN || github.token }}
         shell: bash
         run: |
           if git diff --quiet -- data public/data; then
@@ -57,4 +57,8 @@ jobs:
           fi
           git commit -m "Update crawled DDL data"
           git push origin "$branch"
-          gh pr create --base main --head "$branch" --title "Update crawled DDL data" --body "Automated source-specific crawler refresh. Merge this PR after reviewing the crawler report artifact."
+          if gh pr create --base main --head "$branch" --title "Update crawled DDL data" --body "Automated source-specific crawler refresh. Merge this PR after reviewing the crawler report artifact."; then
+            echo "Created crawler data refresh PR."
+          else
+            echo "::warning::Branch $branch was pushed, but this repository does not currently allow Actions to create PRs. Enable that setting or configure JUST_DDL_BOT_TOKEN."
+          fi
