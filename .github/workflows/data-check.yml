@@ -1,0 +1,44 @@
+name: Data Check
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - data/**
+      - scripts/**
+      - .github/workflows/data-check.yml
+  pull_request:
+    paths:
+      - data/**
+      - scripts/**
+      - .github/workflows/data-check.yml
+  workflow_dispatch:
+  schedule:
+    - cron: '17 2 * * 1'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Validate data schema
+        run: node scripts/validate-data.mjs
+      - name: Link check
+        run: node scripts/link-check.mjs
+      - name: Build crawler seed plan
+        run: node scripts/crawl-sources.mjs --write-report
+      - name: Upload crawler seed report
+        uses: actions/upload-artifact@v4
+        with:
+          name: crawler-seed-report
+          path: reports/crawl-plan.json
+          if-no-files-found: error
