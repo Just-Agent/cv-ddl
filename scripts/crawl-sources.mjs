@@ -49,12 +49,15 @@ function cleanText(value) {
 }
 
 function htmlToLines(html) {
-  const markedLinks = String(html || '').replace(/<a\b([^>]*)>([\s\S]*?)<\/a>/gi, (match, attrs, inner) => {
+  const markedHtmlLinks = String(html || '').replace(/<a\b([^>]*)>([\s\S]*?)<\/a>/gi, (match, attrs, inner) => {
     const hrefMatch = attrs.match(/\bhref\s*=\s*["']([^"']+)["']/i) || attrs.match(/\bhref\s*=\s*([^\s>]+)/i);
     const href = hrefMatch ? hrefMatch[1] : '';
     const text = cleanText(inner).replace(/\|/g, ' ');
     if (!text) return ' ';
     return '\n[[LINK|' + href.replace(/\|/g, '%7C') + '|' + text + ']]\n';
+  });
+  const markedLinks = markedHtmlLinks.replace(/\[([^\]\n]{4,160})\]\((https?:\/\/[^)\s]+|\/[^)\s]+)\)/g, (match, text, href) => {
+    return '\n[[LINK|' + href.replace(/\|/g, '%7C') + '|' + cleanText(text).replace(/\|/g, ' ') + ']]\n';
   });
   return decodeHtml(markedLinks
     .replace(/<script[\s\S]*?<\/script>/gi, ' ')
@@ -181,6 +184,25 @@ async function fetchText(url) {
   } finally {
     clearTimeout(timeout);
   }
+}
+
+function readerFallbackUrl(url) {
+  if (!/^https?:\/\//i.test(url || '')) return null;
+  return 'https://r.jina.ai/http://' + url;
+}
+
+async function fetchSourceText(source, parserName) {
+  const primary = await fetchText(source.url);
+  if (primary.ok) return { ...primary, usedFallback: false };
+  const fallbackUrl = source.fallbackUrl || (parserName === 'sciencedirect-cfp' ? readerFallbackUrl(source.url) : null);
+  if (!fallbackUrl || primary.status !== 403) return { ...primary, usedFallback: false };
+  const fallback = await fetchText(fallbackUrl);
+  return {
+    ...fallback,
+    usedFallback: true,
+    primaryStatus: primary.status,
+    primaryUrl: source.url,
+  };
 }
 
 function isNoisyTitle(title) {
@@ -453,12 +475,15 @@ async function crawlSource(source) {
     return result;
   }
   try {
-    const response = await fetchText(source.url);
+    const response = await fetchSourceText(source, parserName);
     result.status = response.ok ? 'ok' : 'http-warning';
     result.httpStatus = response.status;
     result.finalUrl = response.finalUrl;
     if (!response.ok) {
       result.warnings.push('HTTP status ' + response.status);
+    }
+    if (response.usedFallback) {
+      result.warnings.push('Primary source returned HTTP ' + response.primaryStatus + '; fetched reader fallback for parsing.');
     }
     result.candidates = parser(response.text, { ...source, url: response.finalUrl || source.url })
       .slice(0, maxItemsPerSource)
