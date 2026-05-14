@@ -4,117 +4,92 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>CV-DDL | Just-DDL Network</title>
-  <meta name="description" content="计算机视觉会议、挑战赛与 workshop 截止日追踪。" />
+  <meta name="description" content="计算机视觉顶会、挑战赛与 workshop 截止日追踪。" />
   <style>
-    :root {
-      color-scheme: light;
-      --ink: #101626;
-      --muted: #667085;
-      --line: #e5e7eb;
-      --paper: #ffffff;
-      --soft: #f8fafc;
-      --accent: #06B6D4;
-      --accent-soft: #E0F7FB;
-    }
+    :root { --ink:#101626; --muted:#64748b; --line:#dbe3ef; --paper:#fff; --soft:#f7fafc; --accent:#06B6D4; --soft-accent:#e0f7fb; --warn:#f97316; --ok:#059669; --dead:#94a3b8; }
     * { box-sizing: border-box; }
-    body { margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: var(--ink); background: #f8fafc; }
-    a { color: inherit; text-decoration: none; }
-    .network { background: #101626; color: #fff; border-bottom: 1px solid rgba(255,255,255,.1); }
-    .network-inner { max-width: 1120px; margin: 0 auto; height: 42px; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 0 20px; font-size: 12px; }
-    .brand { display: inline-flex; align-items: center; gap: 9px; color: #fbbf24; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; white-space: nowrap; }
-    .brand-dot { width: 7px; height: 7px; border-radius: 999px; background: #fbbf24; }
-    .links { display: flex; align-items: center; gap: 14px; overflow-x: auto; min-width: 0; color: rgba(255,255,255,.72); white-space: nowrap; }
-    .links a:hover { color: #fff; }
-    main { max-width: 1120px; margin: 0 auto; padding: 56px 20px 36px; }
-    .hero { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(320px, .9fr); gap: 28px; align-items: stretch; }
-    .eyebrow { display: inline-flex; align-items: center; gap: 8px; padding: 7px 10px; border: 1px solid var(--line); border-radius: 999px; background: #fff; color: var(--muted); font-size: 12px; font-weight: 700; }
-    .eyebrow span { width: 8px; height: 8px; border-radius: 999px; background: var(--accent); }
-    h1 { margin: 18px 0 0; font-size: 48px; line-height: 1.02; letter-spacing: 0; }
-    .lead { max-width: 640px; margin: 18px 0 0; color: var(--muted); font-size: 17px; line-height: 1.75; }
-    .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
-    .button { display: inline-flex; align-items: center; justify-content: center; min-height: 42px; border-radius: 8px; padding: 0 16px; font-size: 14px; font-weight: 800; border: 1px solid var(--line); background: #fff; }
-    .button.primary { border-color: var(--accent); background: var(--accent); color: white; }
-    .board { border: 1px solid var(--line); border-radius: 8px; background: var(--paper); box-shadow: 0 24px 80px rgba(16,22,38,.10); overflow: hidden; }
-    .board-head { padding: 18px 18px 14px; background: linear-gradient(180deg, var(--accent-soft), #fff); border-bottom: 1px solid var(--line); }
-    .board-title { font-size: 13px; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
-    .board h2 { margin: 8px 0 0; font-size: 24px; }
-    .rows { padding: 10px; display: grid; gap: 8px; }
-    .row { display: grid; grid-template-columns: 110px 1fr auto; gap: 12px; align-items: center; padding: 12px; border: 1px solid var(--line); border-radius: 8px; background: #fff; font-size: 13px; }
-    .row b { color: var(--ink); }
-    .row span { color: var(--muted); }
-    .pill { justify-self: end; border-radius: 999px; padding: 5px 9px; background: var(--accent-soft); color: var(--accent); font-weight: 800; font-size: 11px; }
-    .section { margin-top: 36px; border: 1px solid var(--line); border-radius: 8px; background: #fff; padding: 22px; }
-    .section h2 { margin: 0; font-size: 22px; }
-    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 16px; }
-    .card { border: 1px solid var(--line); border-radius: 8px; padding: 16px; background: var(--soft); min-height: 120px; }
-    .card strong { display: block; font-size: 14px; margin-bottom: 8px; }
-    .card p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.65; }
-    footer { max-width: 1120px; margin: 0 auto; padding: 0 20px 28px; color: var(--muted); font-size: 12px; }
-    @media (max-width: 760px) {
-      .network-inner { padding: 0 14px; }
-      main { padding-top: 34px; }
-      .hero, .grid { grid-template-columns: 1fr; }
-      h1 { font-size: 34px; }
-      .lead { font-size: 15px; }
-      .row { grid-template-columns: 1fr; }
-      .pill { justify-self: start; }
-    }
+    body { margin:0; background:#f7fafc; color:var(--ink); font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    a { color:inherit; text-decoration:none; }
+    .network { background:#101626; color:white; border-bottom:1px solid rgba(255,255,255,.1); }
+    .network-inner { max-width:1180px; margin:0 auto; height:44px; display:flex; align-items:center; justify-content:space-between; gap:16px; padding:0 20px; font-size:13px; }
+    .brand { display:flex; align-items:center; gap:9px; color:#fbbf24; font-weight:900; letter-spacing:.14em; text-transform:uppercase; white-space:nowrap; }
+    .brand::before { content:""; width:7px; height:7px; border-radius:999px; background:#fbbf24; }
+    .links { display:flex; gap:14px; align-items:center; overflow-x:auto; color:rgba(255,255,255,.75); white-space:nowrap; }
+    .links a:hover { color:#fff; }
+    main { max-width:1180px; margin:0 auto; padding:44px 20px 40px; }
+    .hero { display:grid; grid-template-columns:minmax(0,1.05fr) 360px; gap:24px; align-items:stretch; }
+    .eyebrow { display:inline-flex; align-items:center; gap:8px; height:32px; border:1px solid var(--line); border-radius:999px; padding:0 12px; background:white; color:var(--muted); font-size:12px; font-weight:800; }
+    .eyebrow span { width:8px; height:8px; border-radius:999px; background:var(--accent); }
+    h1 { margin:18px 0 0; font-size:52px; line-height:1; letter-spacing:0; }
+    .lead { margin:18px 0 0; max-width:690px; color:#52637d; font-size:17px; line-height:1.8; }
+    .toolbar { display:flex; flex-wrap:wrap; gap:10px; margin-top:26px; }
+    .toolbar input, .toolbar select { height:42px; border:1px solid var(--line); border-radius:8px; background:white; padding:0 12px; font-size:14px; color:var(--ink); outline:none; }
+    .toolbar input { min-width:260px; flex:1; }
+    .button { display:inline-flex; align-items:center; justify-content:center; height:42px; border-radius:8px; padding:0 15px; border:1px solid var(--accent); background:var(--accent); color:white; font-weight:850; font-size:14px; }
+    .panel { border:1px solid var(--line); border-radius:8px; background:white; overflow:hidden; box-shadow:0 22px 70px rgba(16,22,38,.08); }
+    .panel-head { padding:18px 18px 14px; border-bottom:1px solid var(--line); background:linear-gradient(180deg,var(--soft-accent),#fff); }
+    .panel-head b { display:block; color:var(--accent); font-size:13px; letter-spacing:.14em; text-transform:uppercase; }
+    .panel-head h2 { margin:9px 0 0; font-size:24px; }
+    .stats { display:grid; gap:8px; padding:10px; }
+    .stat { display:grid; grid-template-columns:1fr auto; gap:12px; align-items:center; min-height:52px; border:1px solid var(--line); border-radius:8px; padding:12px; background:#fff; }
+    .stat small { color:var(--muted); display:block; margin-top:3px; }
+    .stat strong { font-size:22px; }
+    .section { margin-top:28px; border:1px solid var(--line); border-radius:8px; background:white; padding:18px; }
+    .section-title { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:14px; }
+    .section-title h2 { margin:0; font-size:22px; }
+    .count { color:var(--muted); font-size:13px; }
+    .ddl-list { display:grid; gap:10px; }
+    .ddl { display:grid; grid-template-columns:1fr auto; gap:14px; border:1px solid var(--line); border-left:5px solid var(--accent); border-radius:8px; padding:14px; background:#fff; }
+    .ddl h3 { margin:0; font-size:17px; }
+    .meta { display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; color:var(--muted); font-size:12px; }
+    .tag, .status, .stage { border-radius:999px; padding:4px 8px; font-size:11px; font-weight:800; }
+    .tag { background:#eef2f7; color:#475569; }
+    .stage { background:var(--soft-accent); color:var(--accent); }
+    .status { background:#ecfdf5; color:var(--ok); }
+    .status.ended { background:#f1f5f9; color:var(--dead); }
+    .status.ongoing { background:#fff7ed; color:var(--warn); }
+    .desc { margin:9px 0 0; color:#52637d; font-size:13px; line-height:1.65; }
+    .datebox { min-width:142px; text-align:right; color:var(--muted); font-size:12px; }
+    .datebox b { display:block; color:var(--ink); font-size:14px; margin-bottom:6px; }
+    .source-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+    .source { border:1px solid var(--line); border-radius:8px; padding:14px; background:var(--soft); }
+    .source b { display:block; margin-bottom:6px; }
+    .source p { margin:0; color:var(--muted); font-size:13px; line-height:1.65; }
+    footer { max-width:1180px; margin:0 auto; padding:0 20px 30px; color:var(--muted); font-size:12px; }
+    @media (max-width: 860px) { .hero, .source-grid { grid-template-columns:1fr; } h1 { font-size:38px; } .ddl { grid-template-columns:1fr; } .datebox { text-align:left; } .network-inner { padding:0 14px; } }
   </style>
 </head>
 <body>
-  <nav class="network" aria-label="Just-DDL Network">
-    <div class="network-inner">
-      <a class="brand" href="https://just-agent.github.io/just-ddl/"><span class="brand-dot"></span>Just-DDL Network</a>
-      <div class="links">
-        <a href="https://just-agent.github.io/hackathon-ddl/">Hackathon</a>
-        <a href="https://just-agent.github.io/agent-ddl/">Agent</a>
-        <a href="https://just-agent.github.io/cv-ddl/">CV</a>
-        <a href="https://just-agent.github.io/nlp-ddl/">NLP</a>
-        <a href="https://just-agent.github.io/academic-ddl/">Academic</a>
-        <a href="https://just-agent.github.io/programming-ddl/">Programming</a>
-        <a href="https://just-agent.github.io/holiday-ddl/">Holiday</a>
-        <a href="https://github.com/Just-Agent/cv-ddl">Repo</a>
-      </div>
-    </div>
-  </nav>
-
+  <nav class="network"><div class="network-inner"><a class="brand" href="https://just-agent.github.io/just-ddl/">Just-DDL Network</a><div class="links"><a href="https://just-agent.github.io/hackathon-ddl/">Hackathon</a><a href="https://just-agent.github.io/agent-ddl/">Agent</a><a href="https://just-agent.github.io/cv-ddl/">CV</a><a href="https://just-agent.github.io/nlp-ddl/">NLP</a><a href="https://just-agent.github.io/academic-ddl/">Academic</a><a href="https://just-agent.github.io/programming-ddl/">Programming</a><a href="https://just-agent.github.io/holiday-ddl/">Holiday</a><a href="https://github.com/Just-Agent/cv-ddl">Repo</a></div></div></nav>
   <main>
-    <section class="hero">
-      <div>
-        <div class="eyebrow"><span></span>Independent topic repository</div>
-        <h1>CV-DDL</h1>
-        <p class="lead">计算机视觉会议、挑战赛与 workshop 截止日追踪。 当前页面是 Just-DDL Network 的统一专题骨架，先把仓库、README、Pages 和后续自动化入口打通，之后逐步接入真实数据源。</p>
-        <div class="actions">
-          <a class="button primary" href="https://just-agent.github.io/just-ddl/#/topic/cv-ddl">Open in Just-DDL Hub</a>
-          <a class="button" href="https://github.com/Just-Agent/cv-ddl">GitHub Repository</a>
-        </div>
-      </div>
-      <aside class="board" aria-label="deployment status">
-        <div class="board-head">
-          <div class="board-title">Deployment Board</div>
-          <h2>专题生产部署骨架已就绪</h2>
-        </div>
-        <div class="rows">
-          <div class="row"><b>Repository</b><span>Just-Agent/cv-ddl</span><em class="pill">ready</em></div>
-          <div class="row"><b>README</b><span>统一 Just-DDL Network 风格</span><em class="pill">ready</em></div>
-          <div class="row"><b>Pages</b><span>GitHub Actions 静态部署</span><em class="pill">live</em></div>
-          <div class="row"><b>Next</b><span>接入专题数据、抓取校验和小程序入口</span><em class="pill">planned</em></div>
-        </div>
-      </aside>
-    </section>
-
-    <section class="section">
-      <h2>专题范围</h2>
-      <div class="grid">
-        <article class="card"><strong>Vision Conferences</strong><p>CVPR、ICCV、ECCV、WACV 等视觉会议投稿与 supplementary deadline。</p></article>
-        <article class="card"><strong>Challenges</strong><p>跟踪视觉竞赛、数据集挑战、leaderboard freeze 与 final submission。</p></article>
-        <article class="card"><strong>Workshop Tasks</strong><p>维护 workshop CFP、shared task 和 camera-ready 节点。</p></article>
-      </div>
-    </section>
+    <section class="hero"><div><div class="eyebrow"><span></span>Demo dataset completed</div><h1>CV-DDL</h1><p class="lead">计算机视觉顶会、挑战赛与 workshop 截止日追踪。 这个专题页已经从空骨架升级为完整 demo：列表、检索、状态筛选、来源说明、阶段标签和 Just-DDL Hub 联动都已补齐。</p><div class="toolbar"><input id="search" placeholder="搜索标题、标签、地点、来源..." /><select id="status"><option value="all">全部状态</option><option value="upcoming">Upcoming</option><option value="ongoing">Ongoing</option><option value="ended">Ended</option></select><select id="kind"><option value="all">全部类型</option></select><a class="button" href="https://just-agent.github.io/just-ddl/#/topic/cv-ddl">Open in Hub</a></div></div><aside class="panel"><div class="panel-head"><b>Topic Board</b><h2>DDL demo 已完善</h2></div><div class="stats"><div class="stat"><span>总条目<small>可被 Hub 与小程序复用</small></span><strong id="total">0</strong></div><div class="stat"><span>活跃截止日<small>未结束的提交 / 报名节点</small></span><strong id="active">0</strong></div><div class="stat"><span>线上节点<small>Online / Hybrid 优先提醒</small></span><strong id="online">0</strong></div></div></aside></section>
+    <section class="section"><div class="section-title"><h2>DDL 列表</h2><span class="count" id="visible-count"></span></div><div class="ddl-list" id="list"></div></section>
+    <section class="section"><div class="section-title"><h2>参考与数据生产化</h2></div><div class="source-grid"><div class="source"><b>AllConfs 风格</b><p>借鉴会议分类、日期、地点、检索和状态入口，后续可接入会议聚合源。</p></div><div class="source"><b>SinoConf 风格</b><p>借鉴国内会议预告、成果回顾、会议评估和学术服务入口。</p></div><div class="source"><b>下一步</b><p>把 demo seed 替换为 crawler 输出，增加字段校验、失效链接检查和更新时间。</p></div></div></section>
   </main>
-
-  <footer>
-    CV-DDL is part of Just-DDL Network. Hub: https://just-agent.github.io/just-ddl/
-  </footer>
+  <footer>CV-DDL is part of Just-DDL Network. Hub: https://just-agent.github.io/just-ddl/</footer>
+  <script type="application/json" id="ddl-data">[{"url":"https://cvpr.thecvf.com","source":"AllConfs-style seed","description":"计算机视觉主会示例，拆分 abstract / paper 阶段。","type":"conference","dateRange":"Nov 2026","tags":["CVPR","Main Conference"],"status":"upcoming","isOnline":true,"deadline":"2026-11-07T23:59:59","location":"Online","title":"CVPR 2027 Abstract Registration","stage":"Abstract"},{"url":"https://cvpr.thecvf.com","source":"Demo seed","description":"全文提交阶段 demo 条目。","type":"conference","dateRange":"Nov 2026","tags":["CVPR","Paper"],"status":"upcoming","isOnline":true,"deadline":"2026-11-14T23:59:59","location":"Online","title":"CVPR 2027 Full Paper","stage":"Full paper"},{"url":"https://iccv.thecvf.com","source":"Demo seed","description":"ICCV 主会投稿 demo。","type":"conference","dateRange":"Mar 2027","tags":["ICCV","Vision"],"status":"upcoming","isOnline":true,"deadline":"2027-03-17T23:59:59","location":"Online","title":"ICCV 2027 Paper Submission","stage":"Paper"},{"url":"https://eccv.ecva.net","source":"Official-style seed","description":"ECCV 后续节点 demo。","type":"conference","dateRange":"Jul 2026","tags":["ECCV","Camera-ready"],"status":"upcoming","isOnline":true,"deadline":"2026-07-20T23:59:59","location":"Online","title":"ECCV 2026 Camera Ready","stage":"Camera ready"},{"url":"https://wacv.thecvf.com","source":"Demo seed","description":"冬季计算机视觉应用会议 demo。","type":"conference","dateRange":"Jul 2026","tags":["WACV","Application"],"status":"upcoming","isOnline":true,"deadline":"2026-07-14T23:59:59","location":"Online","title":"WACV 2027 First Round","stage":"Round 1"},{"url":"https://conferences.miccai.org","source":"Demo seed","description":"医学图像会议 demo。","type":"conference","dateRange":"Dec 2026","tags":["Medical Imaging","MICCAI"],"status":"upcoming","isOnline":true,"deadline":"2026-12-15T23:59:59","location":"Online","title":"MICCAI 2027 Full Paper","stage":"Paper"},{"url":"https://www.kaggle.com/competitions","source":"Kaggle-style demo","description":"视觉挑战赛样例。","type":"challenge","dateRange":"Jun-Aug 2026","tags":["Kaggle","3D Vision"],"status":"upcoming","isOnline":true,"deadline":"2026-08-01T23:59:59","location":"Online","title":"Image Matching Challenge 2026","stage":"Leaderboard"},{"url":"https://davischallenge.org","source":"Benchmark demo","description":"视频分割挑战 demo。","type":"challenge","dateRange":"Oct 2026","tags":["Video","Segmentation"],"status":"upcoming","isOnline":true,"deadline":"2026-10-18T23:59:59","location":"Online","title":"Video Object Segmentation Challenge","stage":"Final submit"}]</script>
+  <script>
+    const items = JSON.parse(document.getElementById('ddl-data').textContent);
+    const list = document.getElementById('list');
+    const search = document.getElementById('search');
+    const status = document.getElementById('status');
+    const kind = document.getElementById('kind');
+    const kinds = [...new Set(items.map(i => i.type))].filter(Boolean);
+    for (const value of kinds) { const option = document.createElement('option'); option.value = value; option.textContent = value; kind.appendChild(option); }
+    const fmt = value => new Intl.DateTimeFormat('zh-CN', { month: 'short', day: 'numeric', year: 'numeric' }).format(new Date(value));
+    function render() {
+      const q = search.value.trim().toLowerCase();
+      const filtered = items.filter(item => {
+        const text = [item.title, item.location, item.source, item.stage, item.type, ...(item.tags || [])].join(' ').toLowerCase();
+        return (!q || text.includes(q)) && (status.value === 'all' || item.status === status.value) && (kind.value === 'all' || item.type === kind.value);
+      });
+      document.getElementById('total').textContent = items.length;
+      document.getElementById('active').textContent = items.filter(i => i.status !== 'ended').length;
+      document.getElementById('online').textContent = items.filter(i => i.isOnline).length;
+      document.getElementById('visible-count').textContent = `${filtered.length} / ${items.length}`;
+      list.innerHTML = filtered.map(item => `<article class="ddl"><div><h3>${item.title}</h3><div class="meta"><span class="stage">${item.stage}</span><span>${item.location}</span><span>${item.dateRange}</span><span>${item.source}</span></div><p class="desc">${item.description}</p><div class="meta">${item.tags.map(t => `<span class="tag">${t}</span>`).join('')}<span class="status ${item.status}">${item.status}</span></div></div><div class="datebox"><b>${fmt(item.deadline)}</b><a href="${item.url}" target="_blank" rel="noopener noreferrer">Source</a></div></article>`).join('');
+    }
+    search.addEventListener('input', render); status.addEventListener('change', render); kind.addEventListener('change', render); render();
+  </script>
 </body>
 </html>

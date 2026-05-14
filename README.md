@@ -2,84 +2,47 @@
 
 # CV-DDL
 
-计算机视觉会议、挑战赛与 workshop 截止日追踪。
-
-Just-DDL Network 的独立专题仓库。当前先提供统一 README、GitHub Pages 骨架和后续 Actions 接入位置，后续再补充真实数据源、爬虫和小程序页面。
+计算机视觉顶会、挑战赛与 workshop 截止日追踪。
 
 [![GitHub Pages](https://img.shields.io/badge/Pages-live-06B6D4?style=for-the-badge)](https://just-agent.github.io/cv-ddl/)
-[![Network](https://img.shields.io/badge/Just--DDL-network-101626?style=for-the-badge)](https://just-agent.github.io/just-ddl/)
-[![Status](https://img.shields.io/badge/Status-topic%20scaffold-64748B?style=for-the-badge)](https://github.com/Just-Agent/cv-ddl)
+[![Just-DDL](https://img.shields.io/badge/Just--DDL-network-101626?style=for-the-badge)](https://just-agent.github.io/just-ddl/)
+[![Status](https://img.shields.io/badge/Demo-completed-059669?style=for-the-badge)](https://just-agent.github.io/cv-ddl/)
 
-[专题页面](https://just-agent.github.io/cv-ddl/) · [Just-DDL 总入口](https://just-agent.github.io/just-ddl/) · [GitHub 仓库](https://github.com/Just-Agent/cv-ddl) · [提交数据](https://github.com/Just-Agent/cv-ddl/issues)
+[专题页面](https://just-agent.github.io/cv-ddl/) · [Just-DDL Hub](https://just-agent.github.io/just-ddl/#/topic/cv-ddl) · [GitHub 仓库](https://github.com/Just-Agent/cv-ddl)
 
 </div>
 
-## 项目定位
+## Demo 已完善
 
-CV-DDL 负责 CVPR / ICCV / ECCV / WACV 等视觉会议、挑战赛、数据集竞赛与 workshop deadline。它会作为独立仓库维护，拥有自己的 Pages 页面、数据 schema、Actions 更新流程和未来小程序专题入口。
+这个仓库不再只是空 Pages 骨架。当前已经包含完整 demo DDL 列表、搜索筛选、状态统计、来源说明和统一 Just-DDL Network 导航。数据风格参考 AllConfs 的会议列表结构，以及 SinoConf 的国内会议/预告/回顾入口。
 
-## 产品入口
+## Demo DDL Seed
 
-| 入口 | 地址 | 用途 |
+| DDL | 阶段 | 截止日 | 地点 | 来源类型 |
+| --- | --- | --- | --- | --- |
+| CVPR 2027 Abstract Registration | Abstract | 2026-11-07 | Online | AllConfs-style seed |
+| CVPR 2027 Full Paper | Full paper | 2026-11-14 | Online | Demo seed |
+| ICCV 2027 Paper Submission | Paper | 2027-03-17 | Online | Demo seed |
+| ECCV 2026 Camera Ready | Camera ready | 2026-07-20 | Online | Official-style seed |
+| WACV 2027 First Round | Round 1 | 2026-07-14 | Online | Demo seed |
+| MICCAI 2027 Full Paper | Paper | 2026-12-15 | Online | Demo seed |
+| Image Matching Challenge 2026 | Leaderboard | 2026-08-01 | Online | Kaggle-style demo |
+| Video Object Segmentation Challenge | Final submit | 2026-10-18 | Online | Benchmark demo |
+
+## 后续生产化
+
+| 模块 | 当前 | 下一步 |
 | --- | --- | --- |
-| GitHub Pages | https://just-agent.github.io/cv-ddl/ | 专题独立页面 |
-| Just-DDL Hub | https://just-agent.github.io/just-ddl/ | 全部 DDL 专题总入口 |
-| Repository | https://github.com/Just-Agent/cv-ddl | 代码、数据、工作流与贡献入口 |
-| Issues | https://github.com/Just-Agent/cv-ddl/issues | 补充截止日、修正链接、申请数据源 |
+| 页面 | 完整 demo 页面已上线 | 替换为真实数据源输出 |
+| 数据 | seed 数据在 index.html 内置 | 拆出 JSON/YAML schema |
+| Actions | Pages 自动部署 | 增加 crawler、validator、link-check |
+| Hub 联动 | 已接入 Just-DDL Hub | 加入更新时间和数据健康状态 |
+| 小程序 | 结构已预留 | 复用同一 schema 输出小程序专题页 |
 
-## Just-DDL Network
+## References
 
-| 专题 | 仓库 | Pages | 阶段 |
-| --- | --- | --- | --- |
-| Hackathon-DDL | [Just-Agent/hackathon-ddl](https://github.com/Just-Agent/hackathon-ddl) | [访问](https://just-agent.github.io/hackathon-ddl/) | 已发布 |
-| Agent-DDL | [Just-Agent/agent-ddl](https://github.com/Just-Agent/agent-ddl) | [访问](https://just-agent.github.io/agent-ddl/) | 已发布 |
-| Just-DDL Hub | [Just-Agent/just-ddl](https://github.com/Just-Agent/just-ddl) | [访问](https://just-agent.github.io/just-ddl/) | 已发布 |
-| CV-DDL | [Just-Agent/cv-ddl](https://github.com/Just-Agent/cv-ddl) | [访问](https://just-agent.github.io/cv-ddl/) | 专题骨架 |
-
-## 收录范围
-
-| 类别 | 示例 | 当前处理方式 |
-| --- | --- | --- |
-| 顶会投稿 | CVPR / ICCV / ECCV / WACV | 先维护静态清单，后接入抓取与校验 |
-| Challenge | Kaggle / EvalAI / CodaLab 视觉挑战 | 记录报名、提交、榜单截止 |
-| Workshop | 顶会 workshop 与 shared task | 保留论文与代码提交阶段 |
-
-## 部署与自动化
-
-| 模块 | 当前状态 | 后续动作 |
-| --- | --- | --- |
-| README | 已统一 Just-DDL Network 风格 | 持续补充真实数据说明 |
-| GitHub Pages | 已提供静态专题页骨架 | 后续替换为专题应用或数据看板 |
-| deploy-pages workflow | 已加入 GitHub Actions | push main 和手动触发均可发布 |
-| 数据抓取 workflow | 待接入 | 按专题数据源独立设计 |
-| 小程序专题页 | 待接入 | 复用同一专题 schema |
-
-## 数据 schema 草案
-
-| 字段 | 含义 |
-| --- | --- |
-| id | 稳定唯一 ID |
-| title | 截止日标题 |
-| source | 官方来源或平台 |
-| url | 官方链接 |
-| deadline | ISO 8601 截止时间 |
-| timezone | 原始时区 |
-| tags | 主题、会议、平台或类型标签 |
-| status | upcoming / active / ended |
-
-## 路线图
-
-| 阶段 | 事项 | 状态 |
-| --- | --- | --- |
-| 1 | 创建独立仓库、README、Pages 骨架 | 完成 |
-| 2 | 接入 Just-DDL Hub 专题卡片和详情页 | 完成 |
-| 3 | 梳理真实数据源和字段 schema | 计划中 |
-| 4 | 增加独立 Actions 抓取与校验 | 计划中 |
-| 5 | 输出微信小程序专题页数据 | 计划中 |
-
-## 贡献
-
-欢迎用 Issue 提供新的截止日来源。请尽量附上官网、截止时间、时区、所属分类、是否有报名与提交两个阶段。
+- AllConfs: https://www.allconfs.org/
+- SinoConf: https://sinoconf.napstic.cn/index
 
 ## License
 
