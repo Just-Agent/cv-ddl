@@ -4,20 +4,20 @@
     "name": "AllConfs",
     "url": "https://www.allconfs.org/",
     "priority": "aggregator",
-    "parser": "manual-review"
+    "parser": "generic-link-date"
   },
   {
     "id": "sinoconf",
     "name": "SinoConf",
     "url": "https://sinoconf.napstic.cn/index",
     "priority": "aggregator-cn",
-    "parser": "manual-review"
+    "parser": "generic-link-date"
   },
   {
     "id": "competehub",
     "name": "CompeteHub",
     "url": "https://www.competehub.dev/zh",
     "priority": "competition-aggregator",
-    "parser": "manual-review"
+    "parser": "generic-link-date"
   }
 ]

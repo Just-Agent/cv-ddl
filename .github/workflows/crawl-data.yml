@@ -1,0 +1,60 @@
+name: Crawl Data
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 2 * * *'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: crawl-data-cv-ddl
+  cancel-in-progress: false
+
+jobs:
+  crawl:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Crawl source-specific data
+        run: node scripts/crawl-sources.mjs --write-data --write-report
+      - name: Validate crawled data
+        run: node scripts/validate-data.mjs
+      - name: Link check crawled data
+        run: node scripts/link-check.mjs
+        env:
+          STRICT_LINK_CHECK: 'false'
+          REQUIRE_DETAIL_URLS: 'false'
+      - name: Upload crawler report
+        uses: actions/upload-artifact@v4
+        with:
+          name: crawler-report
+          path: reports/*.json
+          if-no-files-found: error
+      - name: Create data refresh pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          if git diff --quiet -- data public/data; then
+            echo "No crawled data changes."
+            exit 0
+          fi
+          branch="automation/crawl-data-${{ github.run_id }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$branch"
+          git add data/items.json data/sources.json
+          if [ -d public/data ]; then
+            git add public/data/items.json public/data/sources.json
+          fi
+          git commit -m "Update crawled DDL data"
+          git push origin "$branch"
+          gh pr create --base main --head "$branch" --title "Update crawled DDL data" --body "Automated source-specific crawler refresh. Merge this PR after reviewing the crawler report artifact."

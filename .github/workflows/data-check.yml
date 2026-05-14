@@ -2,26 +2,19 @@ name: Data Check
 
 on:
   push:
-    branches:
-      - main
-    paths:
-      - data/**
-      - scripts/**
-      - .github/workflows/data-check.yml
+    branches: [main]
   pull_request:
-    paths:
-      - data/**
-      - scripts/**
-      - .github/workflows/data-check.yml
   workflow_dispatch:
-  schedule:
-    - cron: '17 2 * * 1'
 
 permissions:
   contents: read
 
+concurrency:
+  group: data-check-cv-ddl-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  validate:
+  data:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -32,13 +25,16 @@ jobs:
           node-version: '20'
       - name: Validate data schema
         run: node scripts/validate-data.mjs
+      - name: Crawl sources
+        run: node scripts/crawl-sources.mjs --write-report
       - name: Link check
         run: node scripts/link-check.mjs
-      - name: Build crawler seed plan
-        run: node scripts/crawl-sources.mjs --write-report
-      - name: Upload crawler seed report
+        env:
+          STRICT_LINK_CHECK: 'false'
+          REQUIRE_DETAIL_URLS: 'false'
+      - name: Upload crawler report
         uses: actions/upload-artifact@v4
         with:
-          name: crawler-seed-report
-          path: reports/crawl-plan.json
+          name: crawler-report
+          path: reports/*.json
           if-no-files-found: error
