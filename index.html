@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CV-DDL | Just-DDL Network</title>
+  <meta name="description" content="计算机视觉会议、挑战赛与 workshop 截止日追踪。" />
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #101626;
+      --muted: #667085;
+      --line: #e5e7eb;
+      --paper: #ffffff;
+      --soft: #f8fafc;
+      --accent: #06B6D4;
+      --accent-soft: #E0F7FB;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: var(--ink); background: #f8fafc; }
+    a { color: inherit; text-decoration: none; }
+    .network { background: #101626; color: #fff; border-bottom: 1px solid rgba(255,255,255,.1); }
+    .network-inner { max-width: 1120px; margin: 0 auto; height: 42px; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 0 20px; font-size: 12px; }
+    .brand { display: inline-flex; align-items: center; gap: 9px; color: #fbbf24; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; white-space: nowrap; }
+    .brand-dot { width: 7px; height: 7px; border-radius: 999px; background: #fbbf24; }
+    .links { display: flex; align-items: center; gap: 14px; overflow-x: auto; min-width: 0; color: rgba(255,255,255,.72); white-space: nowrap; }
+    .links a:hover { color: #fff; }
+    main { max-width: 1120px; margin: 0 auto; padding: 56px 20px 36px; }
+    .hero { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(320px, .9fr); gap: 28px; align-items: stretch; }
+    .eyebrow { display: inline-flex; align-items: center; gap: 8px; padding: 7px 10px; border: 1px solid var(--line); border-radius: 999px; background: #fff; color: var(--muted); font-size: 12px; font-weight: 700; }
+    .eyebrow span { width: 8px; height: 8px; border-radius: 999px; background: var(--accent); }
+    h1 { margin: 18px 0 0; font-size: 48px; line-height: 1.02; letter-spacing: 0; }
+    .lead { max-width: 640px; margin: 18px 0 0; color: var(--muted); font-size: 17px; line-height: 1.75; }
+    .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+    .button { display: inline-flex; align-items: center; justify-content: center; min-height: 42px; border-radius: 8px; padding: 0 16px; font-size: 14px; font-weight: 800; border: 1px solid var(--line); background: #fff; }
+    .button.primary { border-color: var(--accent); background: var(--accent); color: white; }
+    .board { border: 1px solid var(--line); border-radius: 8px; background: var(--paper); box-shadow: 0 24px 80px rgba(16,22,38,.10); overflow: hidden; }
+    .board-head { padding: 18px 18px 14px; background: linear-gradient(180deg, var(--accent-soft), #fff); border-bottom: 1px solid var(--line); }
+    .board-title { font-size: 13px; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
+    .board h2 { margin: 8px 0 0; font-size: 24px; }
+    .rows { padding: 10px; display: grid; gap: 8px; }
+    .row { display: grid; grid-template-columns: 110px 1fr auto; gap: 12px; align-items: center; padding: 12px; border: 1px solid var(--line); border-radius: 8px; background: #fff; font-size: 13px; }
+    .row b { color: var(--ink); }
+    .row span { color: var(--muted); }
+    .pill { justify-self: end; border-radius: 999px; padding: 5px 9px; background: var(--accent-soft); color: var(--accent); font-weight: 800; font-size: 11px; }
+    .section { margin-top: 36px; border: 1px solid var(--line); border-radius: 8px; background: #fff; padding: 22px; }
+    .section h2 { margin: 0; font-size: 22px; }
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 16px; }
+    .card { border: 1px solid var(--line); border-radius: 8px; padding: 16px; background: var(--soft); min-height: 120px; }
+    .card strong { display: block; font-size: 14px; margin-bottom: 8px; }
+    .card p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.65; }
+    footer { max-width: 1120px; margin: 0 auto; padding: 0 20px 28px; color: var(--muted); font-size: 12px; }
+    @media (max-width: 760px) {
+      .network-inner { padding: 0 14px; }
+      main { padding-top: 34px; }
+      .hero, .grid { grid-template-columns: 1fr; }
+      h1 { font-size: 34px; }
+      .lead { font-size: 15px; }
+      .row { grid-template-columns: 1fr; }
+      .pill { justify-self: start; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="network" aria-label="Just-DDL Network">
+    <div class="network-inner">
+      <a class="brand" href="https://just-agent.github.io/just-ddl/"><span class="brand-dot"></span>Just-DDL Network</a>
+      <div class="links">
+        <a href="https://just-agent.github.io/hackathon-ddl/">Hackathon</a>
+        <a href="https://just-agent.github.io/agent-ddl/">Agent</a>
+        <a href="https://just-agent.github.io/cv-ddl/">CV</a>
+        <a href="https://just-agent.github.io/nlp-ddl/">NLP</a>
+        <a href="https://just-agent.github.io/academic-ddl/">Academic</a>
+        <a href="https://just-agent.github.io/programming-ddl/">Programming</a>
+        <a href="https://just-agent.github.io/holiday-ddl/">Holiday</a>
+        <a href="https://github.com/Just-Agent/cv-ddl">Repo</a>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <section class="hero">
+      <div>
+        <div class="eyebrow"><span></span>Independent topic repository</div>
+        <h1>CV-DDL</h1>
+        <p class="lead">计算机视觉会议、挑战赛与 workshop 截止日追踪。 当前页面是 Just-DDL Network 的统一专题骨架，先把仓库、README、Pages 和后续自动化入口打通，之后逐步接入真实数据源。</p>
+        <div class="actions">
+          <a class="button primary" href="https://just-agent.github.io/just-ddl/#/topic/cv-ddl">Open in Just-DDL Hub</a>
+          <a class="button" href="https://github.com/Just-Agent/cv-ddl">GitHub Repository</a>
+        </div>
+      </div>
+      <aside class="board" aria-label="deployment status">
+        <div class="board-head">
+          <div class="board-title">Deployment Board</div>
+          <h2>专题生产部署骨架已就绪</h2>
+        </div>
+        <div class="rows">
+          <div class="row"><b>Repository</b><span>Just-Agent/cv-ddl</span><em class="pill">ready</em></div>
+          <div class="row"><b>README</b><span>统一 Just-DDL Network 风格</span><em class="pill">ready</em></div>
+          <div class="row"><b>Pages</b><span>GitHub Actions 静态部署</span><em class="pill">live</em></div>
+          <div class="row"><b>Next</b><span>接入专题数据、抓取校验和小程序入口</span><em class="pill">planned</em></div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="section">
+      <h2>专题范围</h2>
+      <div class="grid">
+<article class="card"><strong>Vision Conferences</strong><p>CVPR、ICCV、ECCV、WACV 等视觉会议投稿与 supplementary deadline。</p></article>`n        <article class="card"><strong>Challenges</strong><p>跟踪视觉竞赛、数据集挑战、leaderboard freeze 与 final submission。</p></article>`n        <article class="card"><strong>Workshop Tasks</strong><p>维护 workshop CFP、shared task 和 camera-ready 节点。</p></article>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    CV-DDL is part of Just-DDL Network. Hub: https://just-agent.github.io/just-ddl/
+  </footer>
+</body>
+</html>
