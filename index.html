@@ -49,8 +49,12 @@
     .status.ended, .status.closed { background:#f1f5f9; color:var(--dead); }
     .status.ongoing, .status.open { background:#fff7ed; color:var(--warn); }
     .desc { margin:9px 0 0; color:#52637d; font-size:13px; line-height:1.65; }
-    .datebox { min-width:150px; text-align:right; color:var(--muted); font-size:12px; }
+    .datebox { min-width:190px; text-align:right; color:var(--muted); font-size:12px; }
     .datebox b { display:block; color:var(--ink); font-size:14px; margin-bottom:6px; }
+    .countdown { display:inline-flex; align-items:center; justify-content:center; min-width:156px; min-height:32px; border-radius:8px; padding:7px 10px; margin:0 0 7px; background:#ecfdf5; color:#047857; font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace; font-size:12px; font-weight:900; white-space:nowrap; }
+    .countdown.warning { background:#fff7ed; color:#c2410c; }
+    .countdown.critical { background:#fff1f2; color:#be123c; }
+    .countdown.ended { background:#f1f5f9; color:#64748b; }
     .source-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
     .source { border:1px solid var(--line); border-radius:8px; padding:14px; background:var(--soft); }
     .source b { display:block; margin-bottom:6px; }
@@ -74,6 +78,29 @@
     const status = document.getElementById('status');
     const kind = document.getElementById('kind');
     const fmt = value => new Intl.DateTimeFormat('zh-CN', { month: 'short', day: 'numeric', year: 'numeric' }).format(new Date(value));
+    function getCountdown(deadline) {
+      const diff = new Date(deadline).getTime() - Date.now();
+      if (!Number.isFinite(diff) || diff <= 0) return { ended: true, days: 0, hours: 0, minutes: 0, seconds: 0 };
+      return {
+        ended: false,
+        days: Math.floor(diff / 86400000),
+        hours: Math.floor((diff / 3600000) % 24),
+        minutes: Math.floor((diff / 60000) % 60),
+        seconds: Math.floor((diff / 1000) % 60),
+      };
+    }
+    function countdownClass(deadline) {
+      const c = getCountdown(deadline);
+      if (c.ended) return 'ended';
+      if (c.days < 3) return 'critical';
+      if (c.days < 7) return 'warning';
+      return 'safe';
+    }
+    function formatCountdown(deadline) {
+      const c = getCountdown(deadline);
+      if (c.ended) return 'Ended';
+      return `${c.days}d ${String(c.hours).padStart(2, '0')}h ${String(c.minutes).padStart(2, '0')}m ${String(c.seconds).padStart(2, '0')}s`;
+    }
     async function load() { const response = await fetch('data/items.json', { cache: 'no-store' }); items = await response.json(); initKinds(); render(); }
     function initKinds() { const kinds = [...new Set(items.map(i => i.type))].filter(Boolean); for (const value of kinds) { const option = document.createElement('option'); option.value = value; option.textContent = value; kind.appendChild(option); } }
     function render() {
@@ -86,9 +113,9 @@
       document.getElementById('active').textContent = items.filter(i => !['ended','closed'].includes(i.status)).length;
       document.getElementById('online').textContent = items.filter(i => i.isOnline).length;
       document.getElementById('visible-count').textContent = `${filtered.length} / ${items.length}`;
-      list.innerHTML = filtered.map(item => `<article class="ddl"><div><h3>${item.title}</h3><div class="meta"><span class="stage">${item.stage || item.cfpType || 'DDL'}</span><span>${item.journal || item.location}</span><span>${item.dateRange}</span><span>${item.source || item.publisher || ''}</span></div><p class="desc">${item.description || item.scopeSummary || ''}</p><div class="meta">${(item.tags || []).map(t => `<span class="tag">${t}</span>`).join('')}<span class="status ${item.status}">${item.status}</span></div></div><div class="datebox"><b>${fmt(item.deadline)}</b><a href="${item.url}" target="_blank" rel="noopener noreferrer">Source</a></div></article>`).join('');
+      list.innerHTML = filtered.map(item => `<article class="ddl"><div><h3>${item.title}</h3><div class="meta"><span class="stage">${item.stage || item.cfpType || 'DDL'}</span><span>${item.journal || item.location}</span><span>${item.dateRange}</span><span>${item.source || item.publisher || ''}</span></div><p class="desc">${item.description || item.scopeSummary || ''}</p><div class="meta">${(item.tags || []).map(t => `<span class="tag">${t}</span>`).join('')}<span class="status ${item.status}">${item.status}</span></div></div><div class="datebox"><span class="countdown ${countdownClass(item.deadline)}">${formatCountdown(item.deadline)}</span><b>${fmt(item.deadline)}</b><a href="${item.url}" target="_blank" rel="noopener noreferrer">Source</a></div></article>`).join('');
     }
-    search.addEventListener('input', render); status.addEventListener('change', render); kind.addEventListener('change', render); load().catch(error => { list.innerHTML = `<article class="ddl"><div><h3>数据加载失败</h3><p class="desc">${error.message}</p></div></article>`; });
+    search.addEventListener('input', render); status.addEventListener('change', render); kind.addEventListener('change', render); const countdownTicker = window.setInterval(render, 1000); window.addEventListener('pagehide', () => window.clearInterval(countdownTicker)); load().catch(error => { list.innerHTML = `<article class="ddl"><div><h3>数据加载失败</h3><p class="desc">${error.message}</p></div></article>`; });
   </script>
 </body>
 </html>
