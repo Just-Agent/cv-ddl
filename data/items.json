@@ -1,5 +1,43 @@
 [
   {
+    "id": "cvpr2077ai-2077ai-rising-star-award-may-22-2026",
+    "title": "2077AI Rising Star Award",
+    "deadline": "2026-05-22T23:59:59Z",
+    "dateRange": "May 22, 2026",
+    "location": "Online",
+    "isOnline": true,
+    "tags": [
+      "CVPR 2026",
+      "challenge",
+      "2077AI"
+    ],
+    "url": "https://www.2077ai.com/challenge-pages/challenges.html",
+    "status": "upcoming",
+    "description": "Parsed from the official 2077AI CVPR 2026 challenge page.",
+    "stage": "Award application deadline",
+    "source": "2077AI CVPR 2026 Challenges",
+    "type": "challenge"
+  },
+  {
+    "id": "cvpr2077ai-2077ai-datamfm-challenge-may-29-2026",
+    "title": "2077AI DataMFM Challenge",
+    "deadline": "2026-05-29T23:59:59Z",
+    "dateRange": "May 29, 2026",
+    "location": "Online",
+    "isOnline": true,
+    "tags": [
+      "CVPR 2026",
+      "challenge",
+      "2077AI"
+    ],
+    "url": "https://www.2077ai.com/challenge-pages/challenges.html",
+    "status": "upcoming",
+    "description": "Parsed from the official 2077AI CVPR 2026 challenge page.",
+    "stage": "Submission deadline",
+    "source": "2077AI CVPR 2026 Challenges",
+    "type": "challenge"
+  },
+  {
     "id": "cvpr2026-cvpr-2026-1st-workshop-on-video-world-models-interaction-memory-and-efficiency-june-3-2026",
     "title": "CVPR 2026 - 1st Workshop on Video World Models: Interaction, Memory, and Efficiency",
     "deadline": "2026-06-03T23:59:59Z",
@@ -440,44 +478,6 @@
     "type": "challenge"
   },
   {
-    "id": "cvpr2077ai-2077ai-datamfm-challenge-may-29-2026",
-    "title": "2077AI DataMFM Challenge",
-    "deadline": "2026-05-29T23:59:59Z",
-    "dateRange": "May 29, 2026",
-    "location": "Online",
-    "isOnline": true,
-    "tags": [
-      "CVPR 2026",
-      "challenge",
-      "2077AI"
-    ],
-    "url": "https://www.2077ai.com/challenge-pages/challenges.html",
-    "status": "upcoming",
-    "description": "Parsed from the official 2077AI CVPR 2026 challenge page.",
-    "stage": "Submission deadline",
-    "source": "2077AI CVPR 2026 Challenges",
-    "type": "challenge"
-  },
-  {
-    "id": "cvpr2077ai-2077ai-rising-star-award-may-22-2026",
-    "title": "2077AI Rising Star Award",
-    "deadline": "2026-05-22T23:59:59Z",
-    "dateRange": "May 22, 2026",
-    "location": "Online",
-    "isOnline": true,
-    "tags": [
-      "CVPR 2026",
-      "challenge",
-      "2077AI"
-    ],
-    "url": "https://www.2077ai.com/challenge-pages/challenges.html",
-    "status": "upcoming",
-    "description": "Parsed from the official 2077AI CVPR 2026 challenge page.",
-    "stage": "Award application deadline",
-    "source": "2077AI CVPR 2026 Challenges",
-    "type": "challenge"
-  },
-  {
     "id": "eccv-ebmv-2026-ebmv-eccv-2026-challenge-submission-deadline-june-30-2026",
     "title": "EBMV @ ECCV 2026 - Challenge submission deadline",
     "deadline": "2026-06-30T23:59:59Z",
@@ -535,44 +535,6 @@
     "type": "challenge"
   },
   {
-    "id": "eccv-ebmv-2026-ebmv-eccv-2026-workshop-paper-deadline-july-20-2026",
-    "title": "EBMV @ ECCV 2026 - Workshop paper deadline",
-    "deadline": "2026-07-20T23:59:59Z",
-    "dateRange": "July 20, 2026",
-    "location": "Online",
-    "isOnline": true,
-    "tags": [
-      "ECCV 2026",
-      "challenge",
-      "event-based vision"
-    ],
-    "url": "https://eventbasemultimodalvision.github.io/",
-    "status": "upcoming",
-    "description": "Parsed from the EBMV @ ECCV 2026 official workshop page.",
-    "stage": "Workshop paper deadline",
-    "source": "EBMV @ ECCV 2026",
-    "type": "challenge"
-  },
-  {
-    "id": "eccv-ebmv-2026-ebmv-eccv-2026-camera-ready-deadline-august-12-2026",
-    "title": "EBMV @ ECCV 2026 - Camera-ready deadline",
-    "deadline": "2026-08-12T23:59:59Z",
-    "dateRange": "August 12, 2026",
-    "location": "Online",
-    "isOnline": true,
-    "tags": [
-      "ECCV 2026",
-      "challenge",
-      "event-based vision"
-    ],
-    "url": "https://eventbasemultimodalvision.github.io/",
-    "status": "upcoming",
-    "description": "Parsed from the EBMV @ ECCV 2026 official workshop page.",
-    "stage": "Camera-ready deadline",
-    "source": "EBMV @ ECCV 2026",
-    "type": "challenge"
-  },
-  {
     "id": "eccv-emr-2026-emr-eccv-2026-full-paper-submission-deadline-july-12-2026",
     "title": "EMR @ ECCV 2026 - Full paper submission deadline",
     "deadline": "2026-07-12T23:59:59Z",
@@ -589,6 +551,25 @@
     "description": "Parsed from the EMR Workshop @ ECCV 2026 official page.",
     "stage": "Full paper submission deadline",
     "source": "EMR @ ECCV 2026",
+    "type": "challenge"
+  },
+  {
+    "id": "eccv-ebmv-2026-ebmv-eccv-2026-workshop-paper-deadline-july-20-2026",
+    "title": "EBMV @ ECCV 2026 - Workshop paper deadline",
+    "deadline": "2026-07-20T23:59:59Z",
+    "dateRange": "July 20, 2026",
+    "location": "Online",
+    "isOnline": true,
+    "tags": [
+      "ECCV 2026",
+      "challenge",
+      "event-based vision"
+    ],
+    "url": "https://eventbasemultimodalvision.github.io/",
+    "status": "upcoming",
+    "description": "Parsed from the EBMV @ ECCV 2026 official workshop page.",
+    "stage": "Workshop paper deadline",
+    "source": "EBMV @ ECCV 2026",
     "type": "challenge"
   },
   {
@@ -627,6 +608,25 @@
     "description": "Parsed from the EMR Workshop @ ECCV 2026 official page.",
     "stage": "Notification",
     "source": "EMR @ ECCV 2026",
+    "type": "challenge"
+  },
+  {
+    "id": "eccv-ebmv-2026-ebmv-eccv-2026-camera-ready-deadline-august-12-2026",
+    "title": "EBMV @ ECCV 2026 - Camera-ready deadline",
+    "deadline": "2026-08-12T23:59:59Z",
+    "dateRange": "August 12, 2026",
+    "location": "Online",
+    "isOnline": true,
+    "tags": [
+      "ECCV 2026",
+      "challenge",
+      "event-based vision"
+    ],
+    "url": "https://eventbasemultimodalvision.github.io/",
+    "status": "upcoming",
+    "description": "Parsed from the EBMV @ ECCV 2026 official workshop page.",
+    "stage": "Camera-ready deadline",
+    "source": "EBMV @ ECCV 2026",
     "type": "challenge"
   },
   {
