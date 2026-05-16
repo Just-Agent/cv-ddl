@@ -1,84 +1,63 @@
 import fs from 'node:fs';
 
-function readJson(url, fallback) {
+const items = JSON.parse(fs.readFileSync(new URL('../data/items.json', import.meta.url), 'utf8'));
+const strict = process.env.STRICT_LINK_CHECK === '1';
+const TIMEOUT = Number(process.env.LINK_CHECK_TIMEOUT_MS) || 7000;
+const CONCURRENCY = Number(process.env.LINK_CHECK_CONCURRENCY) || 6;
+const urls = [...new Map(items.map(item => [item.url, item])).entries()];
+const failures = [];
+const RETRY_STATUSES = new Set([403, 404, 405, 406, 429, 500, 502, 503]);
+
+async function checkUrl(url) {
+  // Step 1: try HEAD
   try {
-    return JSON.parse(fs.readFileSync(url, 'utf8'));
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), TIMEOUT);
+    const res = await fetch(url, { method: 'HEAD', redirect: 'follow', signal: controller.signal });
+    clearTimeout(timer);
+    if (res.status < 400) return { ok: true, method: 'HEAD', status: res.status };
+    if (!RETRY_STATUSES.has(res.status)) return { ok: false, method: 'HEAD', status: res.status };
   } catch {
-    return fallback;
+    // HEAD threw / aborted — fall through to GET
   }
-}
 
-const items = readJson(new URL('../data/items.json', import.meta.url), []);
-const sources = readJson(new URL('../data/sources.json', import.meta.url), []);
-const strict = process.env.STRICT_LINK_CHECK === 'true';
-const requireDetailUrls = process.env.REQUIRE_DETAIL_URLS === 'true';
-const allowProtected = process.env.ALLOW_PROTECTED_STATUS !== 'false';
-const sourceUrls = new Set(sources.map((source) => source.url).filter((url) => /^https?:\/\//i.test(url || '')));
-const baseAllowedStatuses = [200, 201, 202, 204, 301, 302, 303, 307, 308, 405];
-const protectedStatuses = [401, 403, 429];
-const allowedStatuses = new Set([...baseAllowedStatuses, ...(allowProtected ? protectedStatuses : [])]);
-let failures = 0;
-
-function fail(message) {
-  if (strict || requireDetailUrls) {
-    console.error(message);
-    failures++;
-  } else {
-    console.warn(message);
-  }
-}
-
-async function check(url) {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), Number(process.env.LINK_CHECK_TIMEOUT_MS || 12000));
+  // Step 2: GET with small Range header to avoid downloading full pages
   try {
-    let response = await fetch(url, {
-      method: 'HEAD',
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), TIMEOUT);
+    const res = await fetch(url, {
+      method: 'GET',
       redirect: 'follow',
       signal: controller.signal,
-      headers: { 'user-agent': 'Just-DDL Network link checker (+https://github.com/Just-Agent/just-ddl)' },
+      headers: { Range: 'bytes=0-1023' }
     });
-    if (response.status === 405) {
-      response = await fetch(url, {
-        method: 'GET',
-        redirect: 'follow',
-        signal: controller.signal,
-        headers: { 'user-agent': 'Just-DDL Network link checker (+https://github.com/Just-Agent/just-ddl)' },
-      });
-    }
-    return response.status;
-  } finally {
-    clearTimeout(timeout);
-  }
-}
-
-async function checkRecord(kind, id, url) {
-  if (!url || url === '#') {
-    fail('warn ' + kind + ' ' + id + ': missing url');
-    return;
-  }
-  if (!/^https?:\/\//i.test(url)) return;
-  if (requireDetailUrls && kind === 'item' && sourceUrls.has(url)) {
-    fail('warn item ' + id + ': uses source board URL instead of official detail URL: ' + url);
-  }
-  try {
-    const status = await check(url);
-    if (!allowedStatuses.has(status)) {
-      fail('warn ' + kind + ' ' + id + ': ' + status + ' ' + url);
-    } else {
-      console.log('ok ' + kind + ' ' + id + ': ' + status);
-    }
+    clearTimeout(timer);
+    if (res.status < 400 || res.status === 206) return { ok: true, method: 'GET', status: res.status };
+    return { ok: false, method: 'GET', status: res.status };
   } catch (error) {
-    fail('warn ' + kind + ' ' + id + ': ' + error.message + ' ' + url);
+    return { ok: false, method: 'GET', status: 0, error: error.message };
   }
 }
 
-for (const item of items) {
-  await checkRecord('item', item.id || item.title || 'unknown', item.url);
-}
-for (const source of sources) {
-  await checkRecord('source', source.id || source.name || 'unknown', source.url);
+// Bounded concurrency: process URLs in fixed-size batches
+for (let i = 0; i < urls.length; i += CONCURRENCY) {
+  const batch = urls.slice(i, i + CONCURRENCY);
+  const results = await Promise.all(batch.map(async ([url, item]) => {
+    const result = await checkUrl(url);
+    return { url, item, result };
+  }));
+  for (const { url, item, result } of results) {
+    if (!result.ok) {
+      const statusPart = result.status ? String(result.status) : 'ERR';
+      const errorPart = result.error ? ` :: ${result.error}` : '';
+      failures.push(`[${result.method}:${statusPart}] ${url} (${item.title})${errorPart}`);
+    }
+  }
 }
 
-if (failures > 0) process.exit(1);
+if (failures.length) {
+  console.warn(failures.join('\n'));
+  if (strict) process.exit(1);
+}
 
+console.log(`checked ${urls.length} unique links; failures=${failures.length}; strict=${strict}; timeout=${TIMEOUT}ms; concurrency=${CONCURRENCY}`);

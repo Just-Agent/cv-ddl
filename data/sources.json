@@ -1,30 +1,72 @@
-[
-  {
-    "id": "allconfs",
-    "name": "AllConfs",
-    "url": "https://www.allconfs.org/",
-    "priority": "aggregator",
-    "parser": "generic-link-date"
-  },
-  {
-    "id": "sinoconf",
-    "name": "SinoConf",
-    "url": "https://sinoconf.napstic.cn/index",
-    "priority": "aggregator-cn",
-    "parser": "generic-link-date"
-  },
-  {
-    "id": "thecvf",
-    "name": "The CVF",
-    "url": "https://www.thecvf.com",
-    "priority": "official-network",
-    "parser": "generic-link-date"
-  },
-  {
-    "id": "kaggle-vision",
-    "name": "Kaggle Vision Competitions",
-    "url": "https://www.kaggle.com/competitions",
-    "priority": "competition-aggregator",
-    "parser": "generic-link-date"
-  }
-]
+{
+  "topicId": "cv-ddl",
+  "generatedAt": "2026-05-16T09:26:12.171Z",
+  "sourcePolicy": "Chinese-first display. Dates are preserved from the hub dataset; crawlers must verify against official pages before strict mode.",
+  "sourceFamilies": [
+    {
+      "id": "cvpr-2026-workshops",
+      "name": "CVPR 2026 Workshops",
+      "url": "https://cvpr.thecvf.com/Conferences/2026/Workshops",
+      "adapter": "cvpr2026WorkshopsAdapter",
+      "confidence": "official"
+    },
+    {
+      "id": "cvpr-2077ai-challenges",
+      "name": "2077AI CVPR 2026 Challenges",
+      "url": "https://www.2077ai.com/challenge-pages/challenges.html",
+      "adapter": "cvpr2077AiAdapter",
+      "confidence": "official-workshop"
+    },
+    {
+      "id": "eccv-ebmv-2026",
+      "name": "EBMV @ ECCV 2026",
+      "url": "https://eventbasemultimodalvision.github.io/",
+      "adapter": "eccvEbmv2026Adapter",
+      "confidence": "official-workshop"
+    },
+    {
+      "id": "eccv-emr-2026",
+      "name": "EMR Workshop @ ECCV 2026",
+      "url": "https://emr-workshop.github.io/",
+      "adapter": "eccvEmr2026Adapter",
+      "confidence": "official-workshop"
+    },
+    {
+      "id": "iccv",
+      "name": "ICCV",
+      "url": "https://iccv.thecvf.com",
+      "adapter": "iccvAdapter",
+      "confidence": "official"
+    }
+  ],
+  "itemSources": [
+    {
+      "name": "CVPR 2026 Workshops",
+      "url": "https://videoworldmodel-workshop.github.io/",
+      "type": "item-source",
+      "confidence": "official-or-official-entry",
+      "note": "来自当前 Just-DDL 数据项；具体日期仍以链接页面为准。"
+    },
+    {
+      "name": "2077AI CVPR 2026 Challenges",
+      "url": "https://www.2077ai.com/challenge-pages/challenges.html",
+      "type": "item-source",
+      "confidence": "official-or-official-entry",
+      "note": "来自当前 Just-DDL 数据项；具体日期仍以链接页面为准。"
+    },
+    {
+      "name": "EBMV @ ECCV 2026",
+      "url": "https://eventbasemultimodalvision.github.io/",
+      "type": "item-source",
+      "confidence": "official-or-official-entry",
+      "note": "来自当前 Just-DDL 数据项；具体日期仍以链接页面为准。"
+    },
+    {
+      "name": "EMR @ ECCV 2026",
+      "url": "https://emr-workshop.github.io/",
+      "type": "item-source",
+      "confidence": "official-or-official-entry",
+      "note": "来自当前 Just-DDL 数据项；具体日期仍以链接页面为准。"
+    }
+  ]
+}

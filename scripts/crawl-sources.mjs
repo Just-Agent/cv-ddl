@@ -1,552 +1,462 @@
 import fs from 'node:fs';
-import path from 'node:path';
+import { spawnSync } from 'node:child_process';
 
-const args = new Set(process.argv.slice(2));
-const root = process.cwd();
-const topicSlug = path.basename(root).replace(/[^a-z0-9-]+/gi, '-').toLowerCase();
-const timeoutMs = Number(process.env.CRAWLER_TIMEOUT_MS || 20000);
-const maxItemsPerSource = Number(process.env.CRAWLER_LIMIT || 120);
-const userAgent = process.env.CRAWLER_USER_AGENT || 'Just-DDL Network crawler (+https://github.com/Just-Agent/just-ddl)';
-const sourceSpecificParsers = new Set([
-  'sciencedirect-cfp',
-  'ieee-comsoc-cfp',
-  'ieee-sps-cfp',
-  'ieee-access-cfp',
-]);
+const CRAWL_TIMEOUT_MS = Number(process.env.CRAWL_TIMEOUT_MS) || 20000;
+const REACHABILITY_TIMEOUT_MS = Number(process.env.REACHABILITY_TIMEOUT_MS) || Math.min(7000, CRAWL_TIMEOUT_MS);
+const USER_AGENT = 'Just-DDL-Crawler/1.0 (+https://just-agent.github.io/just-ddl/)';
 
-function readJson(file, fallback) {
-  try {
-    return JSON.parse(fs.readFileSync(file, 'utf8'));
-  } catch {
-    return fallback;
+function extractTitle(html) {
+  const match = html.match(/<title[^>]*>([^<]*)<\/title>/i);
+  return match ? match[1].trim().slice(0, 200) : null;
+}
+
+function fetchViaPowerShell(url) {
+  if (process.platform !== 'win32') return null;
+  const timeoutSec = Math.max(15, Math.ceil(CRAWL_TIMEOUT_MS / 1000) + 5);
+  const escapedUrl = url.replace(/'/g, "''");
+  const script = "$ProgressPreference='SilentlyContinue'; [Console]::OutputEncoding=[System.Text.UTF8Encoding]::new($false); (Invoke-WebRequest -Uri '" + escapedUrl + "' -UseBasicParsing -TimeoutSec " + timeoutSec + " -Headers @{ 'User-Agent'='Mozilla/5.0'; 'Accept-Language'='en-US,en;q=0.9' }).Content";
+  for (const command of ['pwsh', 'powershell']) {
+    const result = spawnSync(command, ['-NoLogo', '-NoProfile', '-NonInteractive', '-Command', script], {
+      encoding: 'utf8',
+      maxBuffer: 20 * 1024 * 1024,
+      timeout: (timeoutSec + 5) * 1000
+    });
+    if (result.status === 0 && result.stdout && result.stdout.trim().length > 1000) {
+      return result.stdout;
+    }
   }
-}
-
-function writeJson(file, value) {
-  fs.mkdirSync(path.dirname(file), { recursive: true });
-  fs.writeFileSync(file, JSON.stringify(value, null, 2) + '\n');
-}
-
-function decodeHtml(value) {
-  return String(value || '')
-    .replace(/&nbsp;/gi, ' ')
-    .replace(/&amp;/gi, '&')
-    .replace(/&lt;/gi, '<')
-    .replace(/&gt;/gi, '>')
-    .replace(/&quot;/gi, '"')
-    .replace(/&#39;|&apos;/gi, "'")
-    .replace(/&#x([0-9a-f]+);/gi, (_, hex) => String.fromCodePoint(Number.parseInt(hex, 16)))
-    .replace(/&#(\d+);/g, (_, dec) => String.fromCodePoint(Number.parseInt(dec, 10)));
-}
-
-function cleanText(value) {
-  return decodeHtml(String(value || '')
-    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
-    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
-    .replace(/<[^>]+>/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim());
-}
-
-function htmlToLines(html) {
-  const markedHtmlLinks = String(html || '').replace(/<a\b([^>]*)>([\s\S]*?)<\/a>/gi, (match, attrs, inner) => {
-    const hrefMatch = attrs.match(/\bhref\s*=\s*["']([^"']+)["']/i) || attrs.match(/\bhref\s*=\s*([^\s>]+)/i);
-    const href = hrefMatch ? hrefMatch[1] : '';
-    const text = cleanText(inner).replace(/\|/g, ' ');
-    if (!text) return ' ';
-    return '\n[[LINK|' + href.replace(/\|/g, '%7C') + '|' + text + ']]\n';
-  });
-  const markedLinks = markedHtmlLinks.replace(/\[([^\]\n]{4,160})\]\((https?:\/\/[^)\s]+|\/[^)\s]+)\)/g, (match, text, href) => {
-    return '\n[[LINK|' + href.replace(/\|/g, '%7C') + '|' + cleanText(text).replace(/\|/g, ' ') + ']]\n';
-  });
-  return decodeHtml(markedLinks
-    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
-    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
-    .replace(/<(br|p|div|li|tr|td|th|h1|h2|h3|h4|h5|section|article)\b[^>]*>/gi, '\n')
-    .replace(/<[^>]+>/g, ' ')
-    .replace(/\r/g, '\n'))
-    .split('\n')
-    .map((line) => line.replace(/\s+/g, ' ').trim())
-    .filter(Boolean);
-}
-
-function parseLinkMarker(line) {
-  const match = String(line || '').match(/^\[\[LINK\|([^|]*)\|([\s\S]*)\]\]$/);
-  if (!match) return null;
-  return { href: match[1], text: cleanText(match[2]) };
-}
-
-function resolveUrl(href, baseUrl) {
-  try {
-    return new URL(href || baseUrl, baseUrl).toString();
-  } catch {
-    return baseUrl;
-  }
-}
-
-const monthIndex = new Map([
-  ['jan', 1], ['january', 1],
-  ['feb', 2], ['february', 2],
-  ['mar', 3], ['march', 3],
-  ['apr', 4], ['april', 4],
-  ['may', 5],
-  ['jun', 6], ['june', 6],
-  ['jul', 7], ['july', 7],
-  ['aug', 8], ['august', 8],
-  ['sep', 9], ['sept', 9], ['september', 9],
-  ['oct', 10], ['october', 10],
-  ['nov', 11], ['november', 11],
-  ['dec', 12], ['december', 12],
-]);
-
-function pad(value) {
-  return String(value).padStart(2, '0');
-}
-
-function toDateString(year, month, day) {
-  if (!year || !month || !day) return null;
-  return String(year).padStart(4, '0') + '-' + pad(month) + '-' + pad(day);
-}
-
-function parseDateCandidate(value) {
-  const text = cleanText(value)
-    .replace(/\b(aoe|utc|gmt|et|est|edt|pst|pdt|cst|cet|deadline|due|submission|manuscript|paper|initial|full|article|date)\b/gi, ' ')
-    .replace(/[(),]/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
-  let match = text.match(/\b(20\d{2})[-/](\d{1,2})[-/](\d{1,2})\b/);
-  if (match) return toDateString(Number(match[1]), Number(match[2]), Number(match[3]));
-  match = text.match(/\b(\d{1,2})\s*[- ]\s*([A-Za-z]{3,9})\s*[- ]\s*(20\d{2})\b/);
-  if (match) return toDateString(Number(match[3]), monthIndex.get(match[2].toLowerCase()), Number(match[1]));
-  match = text.match(/\b([A-Za-z]{3,9})\s+(\d{1,2})\s+(20\d{2})\b/);
-  if (match) return toDateString(Number(match[3]), monthIndex.get(match[1].toLowerCase()), Number(match[2]));
-  match = text.match(/\b(20\d{2})年\s*(\d{1,2})月\s*(\d{1,2})日?\b/);
-  if (match) return toDateString(Number(match[1]), Number(match[2]), Number(match[3]));
   return null;
 }
 
-function findAllDates(value) {
-  const text = cleanText(value);
-  const matches = [];
-  const patterns = [
-    /\b20\d{2}[-/]\d{1,2}[-/]\d{1,2}\b/g,
-    /\b\d{1,2}\s*[- ]\s*[A-Za-z]{3,9}\s*[- ]\s*20\d{2}\b/g,
-    /\b[A-Za-z]{3,9}\s+\d{1,2},?\s+20\d{2}\b/g,
-    /\b20\d{2}年\s*\d{1,2}月\s*\d{1,2}日?\b/g,
-  ];
-  for (const pattern of patterns) {
-    for (const match of text.matchAll(pattern)) {
-      const parsed = parseDateCandidate(match[0]);
-      if (parsed) matches.push(parsed);
-    }
-  }
-  return [...new Set(matches)];
-}
-
-function statusFromDeadline(dateString) {
-  if (!dateString) return 'ongoing';
-  const end = new Date(dateString + 'T23:59:59Z').getTime();
-  return Number.isFinite(end) && end < Date.now() ? 'ended' : 'upcoming';
-}
-
-function slugify(value) {
-  return cleanText(value).toLowerCase()
-    .replace(/&/g, ' and ')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .slice(0, 72) || 'item';
-}
-
-function inferType() {
-  if (topicSlug.includes('journal')) return 'journal';
-  if (topicSlug.includes('hackathon')) return 'hackathon';
-  if (topicSlug.includes('agent')) return 'competition';
-  if (topicSlug.includes('programming')) return 'contest';
-  if (topicSlug.includes('holiday')) return 'event';
-  return 'conference';
-}
-
-async function fetchText(url) {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), timeoutMs);
-  try {
-    const response = await fetch(url, {
-      redirect: 'follow',
-      signal: controller.signal,
-      headers: {
-        'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-        'accept-language': 'en-US,en;q=0.8,zh-CN;q=0.7,zh;q=0.6',
-        'user-agent': userAgent,
-      },
-    });
-    const text = await response.text();
-    return { ok: response.ok, status: response.status, finalUrl: response.url, text };
-  } finally {
-    clearTimeout(timeout);
-  }
-}
-
-function readerFallbackUrl(url) {
-  if (!/^https?:\/\//i.test(url || '')) return null;
-  return 'https://r.jina.ai/http://' + url;
-}
-
-async function fetchSourceText(source, parserName) {
-  const primary = await fetchText(source.url);
-  if (primary.ok) return { ...primary, usedFallback: false };
-  const fallbackUrl = source.fallbackUrl || (parserName === 'sciencedirect-cfp' ? readerFallbackUrl(source.url) : null);
-  if (!fallbackUrl || primary.status !== 403) return { ...primary, usedFallback: false };
-  const fallback = await fetchText(fallbackUrl);
-  return {
-    ...fallback,
-    usedFallback: true,
-    primaryStatus: primary.status,
-    primaryUrl: source.url,
-  };
-}
-
-function isNoisyTitle(title) {
-  return !title
-    || title.length < 8
-    || /^(home|about|submit|submission|view all|learn more|read more|sign in|search|menu|pdf|rss)$/i.test(title)
-    || /^(issn|cite score|impact factor)/i.test(title);
-}
-
-function parseScienceDirectCfp(html, source) {
-  const lines = htmlToLines(html);
-  const candidates = [];
-  for (let index = 0; index < lines.length; index++) {
-    const link = parseLinkMarker(lines[index]);
-    if (!link || isNoisyTitle(link.text)) continue;
-    const block = [];
-    let deadlineLine = -1;
-    for (let cursor = index + 1; cursor < Math.min(lines.length, index + 18); cursor++) {
-      block.push(lines[cursor]);
-      if (/submission deadline/i.test(lines[cursor])) {
-        deadlineLine = cursor;
-        break;
-      }
-    }
-    if (deadlineLine === -1) continue;
-    const blockText = block.join(' ');
-    const deadlineDate = findAllDates(blockText).at(-1);
-    if (!deadlineDate) continue;
-    const innerLinks = block.map(parseLinkMarker).filter(Boolean);
-    const journalLink = innerLinks.find((item) => !/guest editor|view|submit/i.test(item.text));
-    candidates.push({
-      title: link.text,
-      url: resolveUrl(link.href, source.url),
-      deadlineDate,
-      journal: journalLink ? journalLink.text : undefined,
-      publisher: 'Elsevier',
-      location: 'ScienceDirect',
-      stage: 'Call for Papers',
-      cfpType: 'Special Issue',
-      tags: ['Elsevier', 'ScienceDirect'],
-      description: blockText.replace(/\[\[LINK\|[^\]]+\]\]/g, '').slice(0, 220),
-      parserConfidence: 'source-specific',
-    });
-    index = deadlineLine;
-    if (candidates.length >= maxItemsPerSource) break;
-  }
-  return candidates;
-}
-
-function parseComsocCfp(html, source) {
-  const lines = htmlToLines(html);
-  const candidates = [];
-  for (let index = 0; index < lines.length; index++) {
-    const link = parseLinkMarker(lines[index]);
-    if (!link || isNoisyTitle(link.text)) continue;
-    const block = [];
-    for (let cursor = index + 1; cursor < Math.min(lines.length, index + 10); cursor++) {
-      if (parseLinkMarker(lines[cursor])) break;
-      block.push(lines[cursor]);
-    }
-    const blockText = block.join(' ');
-    if (/closed/i.test(blockText)) continue;
-    const dates = findAllDates(blockText);
-    if (dates.length === 0) continue;
-    candidates.push({
-      title: link.text,
-      url: resolveUrl(link.href, source.url),
-      deadlineDate: dates.at(-1),
-      publicationDate: dates.length > 1 ? dates[0] : undefined,
-      publisher: 'IEEE',
-      location: source.name.includes('JSAC') ? 'IEEE JSAC' : 'IEEE ComSoc',
-      journal: source.name.replace(/\s+CFP$/i, ''),
-      stage: 'Call for Papers',
-      cfpType: 'Special Issue',
-      tags: ['IEEE', 'ComSoc'],
-      description: blockText.slice(0, 220),
-      parserConfidence: 'source-specific',
-    });
-    if (candidates.length >= maxItemsPerSource) break;
-  }
-  return candidates;
-}
-
-function parseSpsCfp(html, source) {
-  const lines = htmlToLines(html);
-  const candidates = [];
-  for (let index = 0; index < lines.length; index++) {
-    const link = parseLinkMarker(lines[index]);
-    if (!link || isNoisyTitle(link.text)) continue;
-    const block = [];
-    for (let cursor = index + 1; cursor < Math.min(lines.length, index + 14); cursor++) {
-      if (parseLinkMarker(lines[cursor])) break;
-      block.push(lines[cursor]);
-    }
-    const deadlineLine = block.find((line) => /submission deadline|deadline/i.test(line));
-    if (!deadlineLine) continue;
-    const deadlineDate = findAllDates(deadlineLine).at(-1) || findAllDates(block.join(' ')).at(-1);
-    if (!deadlineDate) continue;
-    candidates.push({
-      title: link.text,
-      url: resolveUrl(link.href, source.url),
-      deadlineDate,
-      publisher: 'IEEE',
-      location: 'IEEE Signal Processing Society',
-      journal: 'IEEE SPS Journals',
-      stage: 'Special Issue',
-      cfpType: 'Special Issue',
-      tags: ['IEEE', 'Signal Processing'],
-      description: block.join(' ').slice(0, 220),
-      parserConfidence: 'source-specific',
-    });
-    if (candidates.length >= maxItemsPerSource) break;
-  }
-  return candidates;
-}
-
-function parseIeeeAccessCfp(html, source) {
-  const plainText = cleanText(html);
-  if (/no special sections open|currently no special sections/i.test(plainText)) {
-    return [];
-  }
-  const lines = htmlToLines(html);
-  const candidates = [];
-  for (let index = 0; index < lines.length; index++) {
-    const link = parseLinkMarker(lines[index]);
-    if (!link || isNoisyTitle(link.text)) continue;
-    const block = [];
-    for (let cursor = index + 1; cursor < Math.min(lines.length, index + 16); cursor++) {
-      if (parseLinkMarker(lines[cursor])) break;
-      block.push(lines[cursor]);
-    }
-    const blockText = block.join(' ');
-    if (!/deadline|closing date|submission/i.test(blockText)) continue;
-    const deadlineDate = findAllDates(blockText).at(-1);
-    if (!deadlineDate) continue;
-    candidates.push({
-      title: link.text,
-      url: resolveUrl(link.href, source.url),
-      deadlineDate,
-      publisher: 'IEEE',
-      location: 'IEEE Access',
-      journal: 'IEEE Access',
-      stage: 'Special Section',
-      cfpType: 'Special Section',
-      tags: ['IEEE Access', 'Special Section'],
-      description: blockText.slice(0, 220),
-      parserConfidence: 'source-specific',
-    });
-    if (candidates.length >= maxItemsPerSource) break;
-  }
-  return candidates;
-}
-
-function parseGenericLinkDate(html, source) {
-  const lines = htmlToLines(html);
-  const candidates = [];
-  for (let index = 0; index < lines.length; index++) {
-    const link = parseLinkMarker(lines[index]);
-    if (!link || isNoisyTitle(link.text)) continue;
-    const block = [];
-    for (let cursor = index + 1; cursor < Math.min(lines.length, index + 8); cursor++) {
-      if (parseLinkMarker(lines[cursor])) break;
-      block.push(lines[cursor]);
-    }
-    const dates = findAllDates(block.join(' '));
-    if (dates.length === 0) continue;
-    candidates.push({
-      title: link.text,
-      url: resolveUrl(link.href, source.url),
-      deadlineDate: dates.at(-1),
-      location: source.name,
-      stage: 'Crawler candidate',
-      cfpType: 'Crawler candidate',
-      tags: [source.name],
-      description: block.join(' ').slice(0, 220),
-      parserConfidence: 'generic-review',
-    });
-    if (candidates.length >= maxItemsPerSource) break;
-  }
-  return candidates;
-}
-
-const parsers = new Map([
-  ['sciencedirect-cfp', parseScienceDirectCfp],
-  ['ieee-comsoc-cfp', parseComsocCfp],
-  ['ieee-sps-cfp', parseSpsCfp],
-  ['ieee-access-cfp', parseIeeeAccessCfp],
-  ['generic-link-date', parseGenericLinkDate],
-]);
-
-function candidateToItem(candidate, source) {
-  if (!candidate.deadlineDate) return null;
-  const id = slugify(topicSlug + '-' + source.id + '-' + candidate.title + '-' + candidate.deadlineDate);
-  return {
-    id,
-    title: candidate.title,
-    deadline: candidate.deadlineDate + 'T23:59:59',
-    dateRange: candidate.deadlineDate,
-    location: candidate.location || source.name,
-    isOnline: true,
-    tags: candidate.tags || [source.name],
-    url: candidate.url || source.url,
-    status: statusFromDeadline(candidate.deadlineDate),
-    stage: candidate.stage || 'Deadline',
+async function fetchSourcePage(source) {
+  const report = {
+    sourceId: source.id,
     source: source.name,
-    type: inferType(),
-    description: candidate.description || '',
-    journal: candidate.journal,
-    publisher: candidate.publisher,
-    cfpType: candidate.cfpType,
-    sourcePriority: source.priority || 'crawler',
-    deadlineTimezone: 'source-local/unspecified',
-    crawler: {
-      sourceId: source.id,
-      parser: source.parser || 'generic-link-date',
-      parserConfidence: candidate.parserConfidence || 'unknown',
-      crawledAt: new Date().toISOString(),
-    },
-  };
-}
-
-function mergeItems(existing, crawled) {
-  const merged = [...existing];
-  const keys = new Map();
-  merged.forEach((item, index) => {
-    const key = slugify(item.title || '') + '|' + String(item.dateRange || item.deadline || '').slice(0, 10);
-    keys.set(key, index);
-  });
-  for (const item of crawled) {
-    const key = slugify(item.title || '') + '|' + String(item.dateRange || item.deadline || '').slice(0, 10);
-    if (keys.has(key)) {
-      const index = keys.get(key);
-      const previous = merged[index];
-      merged[index] = {
-        ...item,
-        ...previous,
-        url: previous.url && previous.url !== '#' ? previous.url : item.url,
-        crawler: item.crawler,
-      };
-    } else {
-      keys.set(key, merged.length);
-      merged.push(item);
-    }
-  }
-  return merged.sort((a, b) => String(a.deadline || '').localeCompare(String(b.deadline || '')));
-}
-
-async function crawlSource(source) {
-  const parserName = source.parser || 'generic-link-date';
-  const parser = parsers.get(parserName);
-  const result = {
-    id: source.id,
-    name: source.name,
     url: source.url,
-    priority: source.priority || 'seed',
-    parser: parserName,
-    status: 'skipped',
+    items: [],
+    reachable: false,
     httpStatus: null,
     finalUrl: null,
-    candidates: [],
-    writeableItems: 0,
-    warnings: [],
+    title: null,
+    contentLength: null,
+    fetchedAt: new Date().toISOString(),
+    note: 'Source reachability check only; curated data/items.json preserved until item parser is implemented.',
+    error: null
   };
-  if (!/^https?:\/\//i.test(source.url || '')) {
-    result.warnings.push('Non-HTTP source kept for manual reference.');
-    return result;
-  }
-  if (!parser) {
-    result.warnings.push('No parser registered for ' + parserName + '.');
-    return result;
-  }
   try {
-    const response = await fetchSourceText(source, parserName);
-    result.status = response.ok ? 'ok' : 'http-warning';
-    result.httpStatus = response.status;
-    result.finalUrl = response.finalUrl;
-    if (!response.ok) {
-      result.warnings.push('HTTP status ' + response.status);
-    }
-    if (response.usedFallback) {
-      result.warnings.push('Primary source returned HTTP ' + response.primaryStatus + '; fetched reader fallback for parsing.');
-    }
-    result.candidates = parser(response.text, { ...source, url: response.finalUrl || source.url })
-      .slice(0, maxItemsPerSource)
-      .map((candidate) => ({
-        ...candidate,
-        sourceId: source.id,
-        parser: parserName,
-        writeable: sourceSpecificParsers.has(parserName),
-      }));
-    result.writeableItems = result.candidates.filter((item) => item.writeable).length;
-  } catch (error) {
-    result.status = 'error';
-    result.warnings.push(error.message);
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), REACHABILITY_TIMEOUT_MS);
+    const res = await fetch(source.url, {
+      redirect: 'follow',
+      signal: controller.signal,
+      headers: { 'User-Agent': USER_AGENT }
+    });
+    clearTimeout(timer);
+    report.httpStatus = res.status;
+    report.finalUrl = res.url;
+    const text = await res.text();
+    report.contentLength = text.length;
+    report.title = extractTitle(text);
+    report.reachable = res.status >= 200 && res.status < 400;
+    report.note = report.reachable
+      ? 'Source reachable. Curated data/items.json preserved until item parser is implemented.'
+      : `Source returned HTTP ${res.status}. Curated data/items.json preserved.`;
+  } catch (err) {
+    report.error = err.name === 'AbortError' ? `Timeout after ${REACHABILITY_TIMEOUT_MS}ms` : err.message;
+    report.note = `Source fetch failed: ${report.error}. Curated data/items.json preserved.`;
   }
-  return result;
+  return report;
 }
 
-const sourcesPath = path.join(root, 'data', 'sources.json');
-const itemsPath = path.join(root, 'data', 'items.json');
-const sources = readJson(sourcesPath, []);
-const existingItems = readJson(itemsPath, []);
-const sourceResults = [];
-for (const source of sources) {
-  sourceResults.push(await crawlSource(source));
-}
+const CVPR_2026_WORKSHOPS_URL = 'https://cvpr.thecvf.com/Conferences/2026/Workshops';
+const CVPR_2077AI_URL = 'https://www.2077ai.com/challenge-pages/challenges.html';
+const ECCV_EBMV_2026_URL = 'https://eventbasemultimodalvision.github.io/';
+const ECCV_EMR_2026_URL = 'https://emr-workshop.github.io/';
+const CVPR_WORKSHOPS_MIN_ITEMS = 12;
+const CV_MAX_FUTURE_DAYS = Number(process.env.CV_MAX_FUTURE_DAYS) || 700;
 
-const allCandidates = sourceResults.flatMap((source) => source.candidates);
-const writeableCandidates = allCandidates.filter((candidate) => candidate.writeable || process.env.ALLOW_GENERIC_CRAWLER_WRITE === 'true');
-const crawledItems = writeableCandidates.map((candidate) => {
-  const source = sources.find((item) => item.id === candidate.sourceId) || {};
-  return candidateToItem(candidate, source);
-}).filter(Boolean);
-
-const report = {
-  generatedAt: new Date().toISOString(),
-  mode: 'source-specific-crawl',
-  topic: topicSlug,
-  summary: {
-    sources: sources.length,
-    candidates: allCandidates.length,
-    writeableCandidates: writeableCandidates.length,
-    generatedItems: crawledItems.length,
-  },
-  sources: sourceResults,
-  generatedItems: crawledItems,
+const CV_MONTHS = {
+  jan: 1, january: 1,
+  feb: 2, february: 2,
+  mar: 3, march: 3,
+  apr: 4, april: 4,
+  may: 5,
+  jun: 6, june: 6,
+  jul: 7, july: 7,
+  aug: 8, august: 8,
+  sep: 9, sept: 9, september: 9,
+  oct: 10, october: 10,
+  nov: 11, november: 11,
+  dec: 12, december: 12
 };
 
-console.log(JSON.stringify(report, null, 2));
-
-if (args.has('--write-report')) {
-  const outDir = path.join(root, 'reports');
-  fs.mkdirSync(outDir, { recursive: true });
-  writeJson(path.join(outDir, 'crawl-report.json'), report);
-  writeJson(path.join(outDir, 'crawl-plan.json'), report);
+function cvDecode(value) {
+  return String(value || '')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#x27;/g, "'")
+    .replace(/&#39;/g, "'")
+    .replace(/&nbsp;/g, ' ');
 }
 
-if (args.has('--write-data')) {
-  const merged = mergeItems(existingItems, crawledItems);
-  writeJson(itemsPath, merged);
-  const publicDataDir = path.join(root, 'public', 'data');
-  if (fs.existsSync(publicDataDir)) {
-    writeJson(path.join(publicDataDir, 'items.json'), merged);
-    writeJson(path.join(publicDataDir, 'sources.json'), sources);
+function cvStripHtml(value) {
+  return cvDecode(value)
+    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function cvSlug(value) {
+  return String(value || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
+    .slice(0, 90);
+}
+
+function cvIsoDate(year, month, day) {
+  const date = new Date(Date.UTC(year, month - 1, day, 23, 59, 59));
+  return date.toISOString().replace('.000Z', 'Z');
+}
+
+function cvParseNamedDate(value, fallbackYear = 2026) {
+  const text = cvStripHtml(value).replace(/[(),]/g, ' ').replace(/\s+/g, ' ');
+  let match = text.match(/\b(20\d{2})[-/](\d{1,2})[-/](\d{1,2})\b/);
+  if (match) return { year: Number(match[1]), month: Number(match[2]), day: Number(match[3]), label: match[0] };
+  match = text.match(/\b(Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:t|tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\.?\s+(\d{1,2})(?:\s*[-–]\s*\d{1,2})?,?\s*(20\d{2})?\b/i);
+  if (!match) return null;
+  const month = CV_MONTHS[match[1].replace('.', '').toLowerCase()];
+  if (!month) return null;
+  return { year: Number(match[3] || fallbackYear), month, day: Number(match[2]), label: match[0] };
+}
+
+function cvIsFutureWithin(iso) {
+  const days = (new Date(iso).getTime() - Date.now()) / 86400000;
+  return days >= -7 && days <= CV_MAX_FUTURE_DAYS;
+}
+
+function cvBuildItem({ idPrefix, title, deadline, dateRange, url, tags, source, stage, description, location }) {
+  return {
+    id: idPrefix + '-' + cvSlug(title + '-' + dateRange),
+    title,
+    deadline,
+    dateRange,
+    location: location || 'Online',
+    isOnline: true,
+    tags: tags.slice(0, 6),
+    url,
+    status: 'upcoming',
+    description,
+    stage,
+    source,
+    type: 'challenge'
+  };
+}
+
+async function cvFetchHtml(url, report) {
+  let text;
+  try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), CRAWL_TIMEOUT_MS);
+    const res = await fetch(url, {
+      redirect: 'follow',
+      signal: controller.signal,
+      headers: { 'User-Agent': USER_AGENT, 'Accept': 'text/html', 'Accept-Language': 'en-US,en;q=0.9' }
+    });
+    clearTimeout(timer);
+    report.httpStatus = res.status;
+    report.finalUrl = res.url;
+    text = await res.text();
+    report.reachable = res.status >= 200 && res.status < 400;
+  } catch (fetchErr) {
+    const fallbackText = fetchViaPowerShell(url);
+    if (!fallbackText) throw fetchErr;
+    text = fallbackText;
+    report.httpStatus = 200;
+    report.finalUrl = url;
+    report.reachable = true;
+    report.note += ' Windows PowerShell fallback was used.';
   }
+  report.contentLength = text.length;
+  report.title = (text.match(/<title[^>]*>([^<]+)<\/title>/i) || [])[1] || null;
+  return text;
 }
 
+async function parseCvpr2026WorkshopItems() {
+  const report = {
+    sourceId: 'cvpr-2026-workshops',
+    source: 'CVPR 2026 Workshops',
+    url: CVPR_2026_WORKSHOPS_URL,
+    items: [],
+    reachable: false,
+    httpStatus: null,
+    finalUrl: null,
+    title: null,
+    contentLength: null,
+    fetchedAt: new Date().toISOString(),
+    note: 'CVPR 2026 official workshop/challenge table parser.',
+    error: null,
+    parsedItemCount: 0,
+    invalidItemCount: 0,
+    parserHealthy: false
+  };
+  try {
+    const text = await cvFetchHtml(CVPR_2026_WORKSHOPS_URL, report);
+    if (!report.reachable) return report;
+    const includeRe = /(challenge|challenges|competition|benchmark|ntire|ug2|datacv|mobile ai|embodied reasoning|gigabrain|pvuw|visual arts|agriculture-vision|vizwiz|cvml|image matching|subtle visual|ai4rwc|world models|cv4animals)/i;
+    const seen = new Set();
+    for (const match of text.matchAll(/<tr[\s\S]*?<\/tr>/gi)) {
+      const row = match[0];
+      const cells = [...row.matchAll(/<td[^>]*>([\s\S]*?)<\/td>/gi)].map(cell => cell[1]);
+      if (cells.length < 4) {
+        report.invalidItemCount += 1;
+        continue;
+      }
+      const titleLink = cells[0].match(/<a[^>]+href=['"]([^'"]+)['"][^>]*>([\s\S]*?)<\/a>/i);
+      const title = cvStripHtml(titleLink ? titleLink[2] : cells[0]);
+      const href = titleLink ? titleLink[1] : CVPR_2026_WORKSHOPS_URL;
+      const acronym = cvStripHtml(cells[1]);
+      const when = cvStripHtml(cells[3]);
+      const dayMatch = when.match(/\b(Wed|Thu)\b/i);
+      if (!title || !dayMatch || !includeRe.test(title + ' ' + acronym)) continue;
+      const day = /^wed/i.test(dayMatch[1]) ? 3 : 4;
+      const deadline = cvIsoDate(2026, 6, day);
+      if (!cvIsFutureWithin(deadline)) continue;
+      const id = cvSlug('cvpr-2026-' + (acronym || title));
+      if (!id || seen.has(id)) continue;
+      seen.add(id);
+      report.items.push(cvBuildItem({
+        idPrefix: 'cvpr2026',
+        title: 'CVPR 2026 - ' + title,
+        deadline,
+        dateRange: 'June ' + day + ', 2026 (' + when + ')',
+        url: new URL(href, CVPR_2026_WORKSHOPS_URL).href,
+        tags: ['CVPR 2026', 'challenge', 'workshop', acronym].filter(Boolean),
+        source: 'CVPR 2026 Workshops',
+        stage: 'Workshop / challenge session',
+        description: 'Parsed from the official CVPR 2026 workshops table.',
+        location: 'Denver, CO / Online'
+      }));
+    }
+    report.items.sort((a, b) => new Date(a.deadline) - new Date(b.deadline) || a.title.localeCompare(b.title));
+    report.parsedItemCount = report.items.length;
+    report.parserHealthy = report.parsedItemCount >= CVPR_WORKSHOPS_MIN_ITEMS;
+    report.note = 'Parsed ' + report.parsedItemCount + ' CVPR workshop/challenge items; rejected ' + report.invalidItemCount + ' non-table rows.';
+  } catch (err) {
+    report.error = err.name === 'AbortError' ? 'Timeout after ' + CRAWL_TIMEOUT_MS + 'ms' : err.message;
+    report.note = 'CVPR workshop parser failed: ' + report.error;
+  }
+  return report;
+}
+
+async function cvpr2026WorkshopsAdapter() {
+  return parseCvpr2026WorkshopItems();
+}
+
+async function parse2077AiItems() {
+  const report = {
+    sourceId: 'cvpr-2077ai-challenges',
+    source: '2077AI CVPR 2026 Challenges',
+    url: CVPR_2077AI_URL,
+    items: [],
+    reachable: false,
+    httpStatus: null,
+    finalUrl: null,
+    title: null,
+    contentLength: null,
+    fetchedAt: new Date().toISOString(),
+    note: '2077AI CVPR 2026 challenge dates parser.',
+    error: null,
+    parsedItemCount: 0,
+    invalidItemCount: 0
+  };
+  try {
+    const html = await cvFetchHtml(CVPR_2077AI_URL, report);
+    if (!report.reachable) return report;
+    const text = cvStripHtml(html);
+    const specs = [
+      { title: '2077AI DataMFM Challenge', re: /DataMFM Challenge\s+Two-track[\s\S]{0,700}?Deadline\s+([A-Za-z]+\s+\d{1,2},\s*2026)/i, stage: 'Submission deadline' },
+      { title: '2077AI Rising Star Award', re: /Rising Star Award\s+Recognizes[\s\S]{0,700}?Deadline\s+([A-Za-z]+\s+\d{1,2},\s*2026)/i, stage: 'Award application deadline' }
+    ];
+    for (const spec of specs) {
+      const match = text.match(spec.re);
+      const parsed = match ? cvParseNamedDate(match[1], 2026) : null;
+      if (!parsed) {
+        report.invalidItemCount += 1;
+        continue;
+      }
+      const deadline = cvIsoDate(parsed.year, parsed.month, parsed.day);
+      if (!cvIsFutureWithin(deadline)) continue;
+      report.items.push(cvBuildItem({
+        idPrefix: 'cvpr2077ai',
+        title: spec.title,
+        deadline,
+        dateRange: match[1],
+        url: CVPR_2077AI_URL,
+        tags: ['CVPR 2026', 'challenge', '2077AI'],
+        source: '2077AI CVPR 2026 Challenges',
+        stage: spec.stage,
+        description: 'Parsed from the official 2077AI CVPR 2026 challenge page.'
+      }));
+    }
+    report.parsedItemCount = report.items.length;
+    report.note = 'Parsed ' + report.parsedItemCount + ' items from 2077AI challenge page.';
+  } catch (err) {
+    report.error = err.name === 'AbortError' ? 'Timeout after ' + CRAWL_TIMEOUT_MS + 'ms' : err.message;
+    report.note = '2077AI parser failed: ' + report.error;
+  }
+  return report;
+}
+
+async function cvpr2077AiAdapter() {
+  return parse2077AiItems();
+}
+
+function cvExtractDateStageItems(text, sourceUrl, sourceName, idPrefix, tags, specs, description) {
+  const items = [];
+  for (const spec of specs) {
+    const re = new RegExp(spec.pattern, 'i');
+    const match = text.match(re);
+    const parsed = match ? cvParseNamedDate(match[1], 2026) : null;
+    if (!parsed) continue;
+    const deadline = cvIsoDate(parsed.year, parsed.month, parsed.day);
+    if (!cvIsFutureWithin(deadline)) continue;
+    items.push(cvBuildItem({
+      idPrefix,
+      title: sourceName + ' - ' + spec.stage,
+      deadline,
+      dateRange: match[1],
+      url: sourceUrl,
+      tags,
+      source: sourceName,
+      stage: spec.stage,
+      description
+    }));
+  }
+  return items;
+}
+
+async function parseEccvEbmvItems() {
+  const report = {
+    sourceId: 'eccv-ebmv-2026',
+    source: 'EBMV @ ECCV 2026',
+    url: ECCV_EBMV_2026_URL,
+    items: [],
+    reachable: false,
+    httpStatus: null,
+    finalUrl: null,
+    title: null,
+    contentLength: null,
+    fetchedAt: new Date().toISOString(),
+    note: 'EBMV ECCV 2026 important dates parser.',
+    error: null,
+    parsedItemCount: 0,
+    invalidItemCount: 0
+  };
+  try {
+    const html = await cvFetchHtml(ECCV_EBMV_2026_URL, report);
+    if (!report.reachable) return report;
+    const text = cvStripHtml(html);
+    report.items = cvExtractDateStageItems(text, ECCV_EBMV_2026_URL, 'EBMV @ ECCV 2026', 'eccv-ebmv-2026', ['ECCV 2026', 'challenge', 'event-based vision'], [
+      { stage: 'Challenge submission deadline', pattern: 'Challenge Submission Deadline\\s+([A-Za-z]+\\s+\\d{1,2},\\s*2026)' },
+      { stage: 'Challenge results announcement', pattern: 'Challenge Results Announcement\\s+([A-Za-z]+\\s+\\d{1,2},\\s*2026)' },
+      { stage: 'Technical report deadline', pattern: 'Technical Report Deadline\\s+([A-Za-z]+\\s+\\d{1,2},\\s*2026)' },
+      { stage: 'Workshop paper deadline', pattern: 'Regular Workshop Paper Deadline\\s+([A-Za-z]+\\s+\\d{1,2},\\s*2026)' },
+      { stage: 'Camera-ready deadline', pattern: 'Camera-ready Deadline\\s+([A-Za-z]+\\s+\\d{1,2},\\s*2026)' }
+    ], 'Parsed from the EBMV @ ECCV 2026 official workshop page.');
+    report.parsedItemCount = report.items.length;
+    report.note = 'Parsed ' + report.parsedItemCount + ' EBMV ECCV items.';
+  } catch (err) {
+    report.error = err.name === 'AbortError' ? 'Timeout after ' + CRAWL_TIMEOUT_MS + 'ms' : err.message;
+    report.note = 'EBMV ECCV parser failed: ' + report.error;
+  }
+  return report;
+}
+
+async function eccvEbmv2026Adapter() {
+  return parseEccvEbmvItems();
+}
+
+async function parseEccvEmrItems() {
+  const report = {
+    sourceId: 'eccv-emr-2026',
+    source: 'EMR Workshop @ ECCV 2026',
+    url: ECCV_EMR_2026_URL,
+    items: [],
+    reachable: false,
+    httpStatus: null,
+    finalUrl: null,
+    title: null,
+    contentLength: null,
+    fetchedAt: new Date().toISOString(),
+    note: 'EMR ECCV 2026 important dates parser.',
+    error: null,
+    parsedItemCount: 0,
+    invalidItemCount: 0
+  };
+  try {
+    const html = await cvFetchHtml(ECCV_EMR_2026_URL, report);
+    if (!report.reachable) return report;
+    const text = cvStripHtml(html);
+    report.items = cvExtractDateStageItems(text, ECCV_EMR_2026_URL, 'EMR @ ECCV 2026', 'eccv-emr-2026', ['ECCV 2026', 'challenge', 'embodied AI'], [
+      { stage: 'Full paper submission deadline', pattern: 'Full Paper Submission Deadline:?\\s+([A-Za-z]+\\s+\\d{1,2},\\s*2026)' },
+      { stage: 'Extended abstract submission', pattern: 'Extended Abstracts Submission\\s+([A-Za-z]+\\s+\\d{1,2},\\s*2026)' },
+      { stage: 'Notification', pattern: 'Notification\\s+([A-Za-z]+\\s+\\d{1,2},\\s*2026)' },
+      { stage: 'Final version', pattern: 'Final Version\\s+([A-Za-z]+\\s+\\d{1,2},\\s*2026)' }
+    ], 'Parsed from the EMR Workshop @ ECCV 2026 official page.');
+    report.parsedItemCount = report.items.length;
+    report.note = 'Parsed ' + report.parsedItemCount + ' EMR ECCV items.';
+  } catch (err) {
+    report.error = err.name === 'AbortError' ? 'Timeout after ' + CRAWL_TIMEOUT_MS + 'ms' : err.message;
+    report.note = 'EMR ECCV parser failed: ' + report.error;
+  }
+  return report;
+}
+
+async function eccvEmr2026Adapter() {
+  return parseEccvEmrItems();
+}
+async function iccvAdapter() {
+  return fetchSourcePage({ id: "iccv", name: "ICCV", url: "https://iccv.thecvf.com" });
+}
+
+const adapters = [cvpr2026WorkshopsAdapter, cvpr2077AiAdapter, eccvEbmv2026Adapter, eccvEmr2026Adapter, iccvAdapter];
+const existingItemsUrl = new URL('../data/items.json', import.meta.url);
+const existingItems = JSON.parse(fs.readFileSync(existingItemsUrl, 'utf8'));
+let previousParsedItemCount = null;
+try {
+  const previousReport = JSON.parse(fs.readFileSync(new URL('../data/crawl-report.json', import.meta.url), 'utf8'));
+  previousParsedItemCount = previousReport.parsedItemCount ?? null;
+} catch {}
+const reports = await Promise.all(adapters.map(adapter => adapter()));
+
+const harvestedItems = reports.flatMap(report => report.items);
+const parsedItemCount = reports.reduce((s, r) => s + (r.parsedItemCount || 0), 0);
+const parserHealthy = reports.every(r => r.parserHealthy !== false);
+const parserDropOk = previousParsedItemCount === null || parsedItemCount >= Math.floor(previousParsedItemCount * 0.5);
+if (harvestedItems.length >= CVPR_WORKSHOPS_MIN_ITEMS && parserHealthy && parserDropOk) {
+  fs.writeFileSync(existingItemsUrl, JSON.stringify(harvestedItems, null, 2) + '\n', 'utf8');
+  console.log('crawler wrote ' + harvestedItems.length + ' fetched items');
+} else {
+  console.log('parser emitted ' + harvestedItems.length + ' items (health gate failed or threshold not met); preserving ' + existingItems.length + ' curated items in data/items.json');
+}
+
+const reachableCount = reports.filter(r => r.reachable).length;
+console.log('reachability: ' + reachableCount + '/' + reports.length + ' sources reachable');
+if (parsedItemCount > 0) console.log('parsedItemCount: ' + parsedItemCount);
+
+fs.writeFileSync(new URL('../data/crawl-report.json', import.meta.url), JSON.stringify({
+  topicId: "cv-ddl",
+  generatedAt: new Date().toISOString(),
+  adapterCount: reports.length,
+  reachableCount,
+  parsedItemCount,
+  previousParsedItemCount,
+  parserHealthy,
+  parserDropOk,
+  adapters: reports
+}, null, 2) + '\n', 'utf8');

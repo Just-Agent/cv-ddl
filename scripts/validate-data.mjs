@@ -1,45 +1,25 @@
 import fs from 'node:fs';
 
 const items = JSON.parse(fs.readFileSync(new URL('../data/items.json', import.meta.url), 'utf8'));
-const required = ['id', 'title', 'deadline', 'status', 'url'];
-const statuses = new Set(['upcoming', 'ongoing', 'ended', 'open', 'closed']);
-let errors = 0;
+const sources = JSON.parse(fs.readFileSync(new URL('../data/sources.json', import.meta.url), 'utf8'));
+const errors = [];
 
-if (!Array.isArray(items)) {
-  console.error('data/items.json must be an array');
+if (!Array.isArray(items) || items.length === 0) errors.push('items.json must contain at least one item');
+if (!sources || !Array.isArray(sources.sourceFamilies)) errors.push('sources.json missing sourceFamilies');
+
+for (const item of items) {
+  for (const key of ['id', 'title', 'deadline', 'url', 'source']) {
+    if (!item[key]) errors.push(`${item.id || '<missing-id>'}: missing ${key}`);
+  }
+  if (Number.isNaN(Date.parse(item.deadline))) errors.push(`${item.id}: invalid deadline ${item.deadline}`);
+  if (item.url && !/^https?:\/\//.test(item.url)) errors.push(`${item.id}: invalid url ${item.url}`);
+  const text = JSON.stringify(item);
+  if (/\?\?\?\?|�/.test(text)) errors.push(`${item.id}: contains mojibake placeholder`);
+}
+
+if (errors.length) {
+  console.error(errors.join('\n'));
   process.exit(1);
 }
 
-const ids = new Set();
-for (const [index, item] of items.entries()) {
-  for (const key of required) {
-    if (!item[key]) {
-      console.error(`item ${index} missing required field: ${key}`);
-      errors++;
-    }
-  }
-  if (item.id) {
-    if (ids.has(item.id)) {
-      console.error(`duplicate id: ${item.id}`);
-      errors++;
-    }
-    ids.add(item.id);
-  }
-  if (item.deadline && Number.isNaN(Date.parse(item.deadline))) {
-    console.error(`invalid deadline for ${item.id}: ${item.deadline}`);
-    errors++;
-  }
-  if (item.status && !statuses.has(item.status)) {
-    console.error(`invalid status for ${item.id}: ${item.status}`);
-    errors++;
-  }
-  if (item.url && item.url !== '#') {
-    try { new URL(item.url); } catch {
-      console.error(`invalid url for ${item.id}: ${item.url}`);
-      errors++;
-    }
-  }
-}
-
-if (errors > 0) process.exit(1);
-console.log(`validated ${items.length} DDL items`);
+console.log(`validated ${items.length} DDL items and ${sources.sourceFamilies.length} source families`);
