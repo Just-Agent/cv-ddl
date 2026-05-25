@@ -41,7 +41,7 @@
     "id": "cvpr2026-cvpr-2026-1st-workshop-on-video-world-models-interaction-memory-and-efficiency-june-3-2026",
     "title": "CVPR 2026 - 1st Workshop on Video World Models: Interaction, Memory, and Efficiency",
     "deadline": "2026-06-03T23:59:59Z",
-    "dateRange": "June 3, 2026 (Wed Half Day)",
+    "dateRange": "June 3, 2026 (Wed AM)",
     "location": "Denver, CO / Online",
     "isOnline": true,
     "tags": [
@@ -61,7 +61,7 @@
     "id": "cvpr2026-cvpr-2026-3rd-workshop-on-scannet-novel-view-synthesis-and-3d-semantic-understanding-chall",
     "title": "CVPR 2026 - 3rd Workshop on ScanNet++ Novel View Synthesis and 3D Semantic Understanding Challenge",
     "deadline": "2026-06-03T23:59:59Z",
-    "dateRange": "June 3, 2026 (Wed Half Day)",
+    "dateRange": "June 3, 2026 (Wed PM)",
     "location": "Denver, CO / Online",
     "isOnline": true,
     "tags": [
@@ -81,7 +81,7 @@
     "id": "cvpr2026-cvpr-2026-ai4rwc-the-2nd-international-workshop-on-vision-intelligence-for-real-world-chal",
     "title": "CVPR 2026 - AI4RWC: The 2nd International Workshop on Vision Intelligence for Real-world Challenges",
     "deadline": "2026-06-03T23:59:59Z",
-    "dateRange": "June 3, 2026 (Wed Half Day)",
+    "dateRange": "June 3, 2026 (Wed AM)",
     "location": "Denver, CO / Online",
     "isOnline": true,
     "tags": [
@@ -101,7 +101,7 @@
     "id": "cvpr2026-cvpr-2026-gigabrain-challenge-2026-workshop-on-world-models-empowering-vision-language-act",
     "title": "CVPR 2026 - GigaBrain Challenge 2026: Workshop on World Models Empowering Vision Language Action Model",
     "deadline": "2026-06-03T23:59:59Z",
-    "dateRange": "June 3, 2026 (Wed Half Day)",
+    "dateRange": "June 3, 2026 (Wed PM)",
     "location": "Denver, CO / Online",
     "isOnline": true,
     "tags": [
@@ -121,7 +121,7 @@
     "id": "cvpr2026-cvpr-2026-multimodal-foundation-models-for-biomedicine-challenges-and-opportunities-june-3",
     "title": "CVPR 2026 - Multimodal Foundation Models for Biomedicine: Challenges and Opportunities",
     "deadline": "2026-06-03T23:59:59Z",
-    "dateRange": "June 3, 2026 (Wed Half Day)",
+    "dateRange": "June 3, 2026 (Wed AM)",
     "location": "Denver, CO / Online",
     "isOnline": true,
     "tags": [
@@ -141,7 +141,7 @@
     "id": "cvpr2026-cvpr-2026-the-2nd-international-workshop-challenge-on-subtle-visual-computing-cvpr-2026-ju",
     "title": "CVPR 2026 - The 2nd International Workshop & Challenge on Subtle Visual Computing @CVPR 2026",
     "deadline": "2026-06-03T23:59:59Z",
-    "dateRange": "June 3, 2026 (Wed Half Day)",
+    "dateRange": "June 3, 2026 (Wed AM)",
     "location": "Denver, CO / Online",
     "isOnline": true,
     "tags": [
@@ -178,6 +178,26 @@
     "type": "challenge"
   },
   {
+    "id": "cvpr2026-cvpr-2026-the-3rd-ai-for-visual-arts-workshop-and-challenges-june-3-2026-wed-am",
+    "title": "CVPR 2026 - The 3rd AI for Visual Arts Workshop and Challenges",
+    "deadline": "2026-06-03T23:59:59Z",
+    "dateRange": "June 3, 2026 (Wed AM)",
+    "location": "Denver, CO / Online",
+    "isOnline": true,
+    "tags": [
+      "CVPR 2026",
+      "challenge",
+      "workshop",
+      "AI4VA"
+    ],
+    "url": "https://ai4va-cvpr.github.io/",
+    "status": "upcoming",
+    "description": "Parsed from the official CVPR 2026 workshops table.",
+    "stage": "Workshop / challenge session",
+    "source": "CVPR 2026 Workshops",
+    "type": "challenge"
+  },
+  {
     "id": "cvpr2026-cvpr-2026-the-5th-datacv-workshop-and-challenge-june-3-2026-wed-half-day",
     "title": "CVPR 2026 - The 5th DataCV Workshop and Challenge",
     "deadline": "2026-06-03T23:59:59Z",
@@ -198,10 +218,30 @@
     "type": "challenge"
   },
   {
+    "id": "cvpr2026-cvpr-2026-the-5th-datacv-workshop-and-challenge-june-3-2026-wed-am",
+    "title": "CVPR 2026 - The 5th DataCV Workshop and Challenge",
+    "deadline": "2026-06-03T23:59:59Z",
+    "dateRange": "June 3, 2026 (Wed AM)",
+    "location": "Denver, CO / Online",
+    "isOnline": true,
+    "tags": [
+      "CVPR 2026",
+      "challenge",
+      "workshop",
+      "DataCV"
+    ],
+    "url": "https://sites.google.com/view/datacv-2026-cvpr/",
+    "status": "upcoming",
+    "description": "Parsed from the official CVPR 2026 workshops table.",
+    "stage": "Workshop / challenge session",
+    "source": "CVPR 2026 Workshops",
+    "type": "challenge"
+  },
+  {
     "id": "cvpr2026-cvpr-2026-the-7th-international-workshop-and-cvml-challenge-on-agriculture-vision-challeng",
     "title": "CVPR 2026 - The 7th International Workshop and CVML Challenge on Agriculture-Vision: Challenges & Opportunities for Computer Vision in Agriculture",
     "deadline": "2026-06-03T23:59:59Z",
-    "dateRange": "June 3, 2026 (Wed Half Day)",
+    "dateRange": "June 3, 2026 (Wed PM)",
     "location": "Denver, CO / Online",
     "isOnline": true,
     "tags": [
@@ -221,7 +261,7 @@
     "id": "cvpr2026-cvpr-2026-workshop-on-world-models-meet-active-sensing-and-closed-loop-planning-june-3-202",
     "title": "CVPR 2026 - Workshop on World Models Meet Active Sensing and Closed-Loop Planning",
     "deadline": "2026-06-03T23:59:59Z",
-    "dateRange": "June 3, 2026 (Wed Half Day)",
+    "dateRange": "June 3, 2026 (Wed AM)",
     "location": "Denver, CO / Online",
     "isOnline": true,
     "tags": [
@@ -230,7 +270,7 @@
       "workshop",
       "WMAS"
     ],
-    "url": "https://cvpr.thecvf.com/Conferences/2026/Workshops",
+    "url": "https://cvpr26wmas.github.io/",
     "status": "upcoming",
     "description": "Parsed from the official CVPR 2026 workshops table.",
     "stage": "Workshop / challenge session",
@@ -278,10 +318,30 @@
     "type": "challenge"
   },
   {
+    "id": "cvpr2026-cvpr-2026-4d-world-models-bridging-generation-and-reconstruction-june-4-2026-thu-pm",
+    "title": "CVPR 2026 - 4D World Models: Bridging Generation and Reconstruction",
+    "deadline": "2026-06-04T23:59:59Z",
+    "dateRange": "June 4, 2026 (Thu PM)",
+    "location": "Denver, CO / Online",
+    "isOnline": true,
+    "tags": [
+      "CVPR 2026",
+      "challenge",
+      "workshop",
+      "ReGen4D"
+    ],
+    "url": "https://ivl.cs.brown.edu/4dworldmodels/",
+    "status": "upcoming",
+    "description": "Parsed from the official CVPR 2026 workshops table.",
+    "stage": "Workshop / challenge session",
+    "source": "CVPR 2026 Workshops",
+    "type": "challenge"
+  },
+  {
     "id": "cvpr2026-cvpr-2026-6th-workshop-on-cv4animals-computer-vision-for-animal-behavior-tracking-and-mode",
     "title": "CVPR 2026 - 6th Workshop on CV4Animals: Computer Vision for Animal Behavior Tracking and Modeling",
     "deadline": "2026-06-04T23:59:59Z",
-    "dateRange": "June 4, 2026 (Thu Half Day)",
+    "dateRange": "June 4, 2026 (Thu AM)",
     "location": "Denver, CO / Online",
     "isOnline": true,
     "tags": [
@@ -302,6 +362,26 @@
     "title": "CVPR 2026 - Eighth Workshop on Image Matching: Local Features and Beyond",
     "deadline": "2026-06-04T23:59:59Z",
     "dateRange": "June 4, 2026 (Thu Half Day)",
+    "location": "Denver, CO / Online",
+    "isOnline": true,
+    "tags": [
+      "CVPR 2026",
+      "challenge",
+      "workshop",
+      "IMW"
+    ],
+    "url": "https://image-matching-workshop.github.io/",
+    "status": "upcoming",
+    "description": "Parsed from the official CVPR 2026 workshops table.",
+    "stage": "Workshop / challenge session",
+    "source": "CVPR 2026 Workshops",
+    "type": "challenge"
+  },
+  {
+    "id": "cvpr2026-cvpr-2026-eighth-workshop-on-image-matching-local-features-and-beyond-june-4-2026-thu-pm",
+    "title": "CVPR 2026 - Eighth Workshop on Image Matching: Local Features and Beyond",
+    "deadline": "2026-06-04T23:59:59Z",
+    "dateRange": "June 4, 2026 (Thu PM)",
     "location": "Denver, CO / Online",
     "isOnline": true,
     "tags": [
@@ -341,7 +421,7 @@
     "id": "cvpr2026-cvpr-2026-from-perception-to-persuasion-challenges-and-advances-in-misinformation-detectio",
     "title": "CVPR 2026 - From Perception to Persuasion: Challenges and Advances in Misinformation Detection in Society",
     "deadline": "2026-06-04T23:59:59Z",
-    "dateRange": "June 4, 2026 (Thu Half Day)",
+    "dateRange": "June 4, 2026 (Thu AM)",
     "location": "Denver, CO / Online",
     "isOnline": true,
     "tags": [
@@ -418,10 +498,30 @@
     "type": "challenge"
   },
   {
+    "id": "cvpr2026-cvpr-2026-pixel-level-video-understanding-in-the-wild-challenge-june-4-2026-thu-pm",
+    "title": "CVPR 2026 - Pixel-level Video Understanding in the Wild Challenge",
+    "deadline": "2026-06-04T23:59:59Z",
+    "dateRange": "June 4, 2026 (Thu PM)",
+    "location": "Denver, CO / Online",
+    "isOnline": true,
+    "tags": [
+      "CVPR 2026",
+      "challenge",
+      "workshop",
+      "PVUW"
+    ],
+    "url": "https://pvuw.github.io/",
+    "status": "upcoming",
+    "description": "Parsed from the official CVPR 2026 workshops table.",
+    "stage": "Workshop / challenge session",
+    "source": "CVPR 2026 Workshops",
+    "type": "challenge"
+  },
+  {
     "id": "cvpr2026-cvpr-2026-the-8th-ug2-workshop-and-challenge-bridging-the-gap-between-computational-photog",
     "title": "CVPR 2026 - The 8th UG2+ Workshop and Challenge: Bridging the Gap between Computational Photography and Visual Perception",
     "deadline": "2026-06-04T23:59:59Z",
-    "dateRange": "June 4, 2026 (Thu Half Day)",
+    "dateRange": "June 4, 2026 (Thu AM)",
     "location": "Denver, CO / Online",
     "isOnline": true,
     "tags": [
@@ -461,7 +561,7 @@
     "id": "cvpr2026-cvpr-2026-vizwiz-grand-challenge-interpreting-images-and-videos-taken-by-blind-people-june",
     "title": "CVPR 2026 - VizWiz Grand Challenge: Interpreting Images and Videos Taken by Blind People",
     "deadline": "2026-06-04T23:59:59Z",
-    "dateRange": "June 4, 2026 (Thu Half Day)",
+    "dateRange": "June 4, 2026 (Thu AM)",
     "location": "Denver, CO / Online",
     "isOnline": true,
     "tags": [
