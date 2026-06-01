@@ -1,9 +1,9 @@
 {
   "topicId": "cv-ddl",
-  "generatedAt": "2026-05-25T06:48:59.418Z",
+  "generatedAt": "2026-06-01T07:25:17.180Z",
   "adapterCount": 5,
   "reachableCount": 5,
-  "parsedItemCount": 33,
+  "parsedItemCount": 29,
   "previousParsedItemCount": 33,
   "parserHealthy": true,
   "parserDropOk": true,
@@ -458,8 +458,8 @@
       "httpStatus": 200,
       "finalUrl": "https://cvpr.thecvf.com/Conferences/2026/Workshops",
       "title": "CVPR 2026 Workshops",
-      "contentLength": 178596,
-      "fetchedAt": "2026-05-25T06:48:57.895Z",
+      "contentLength": 177799,
+      "fetchedAt": "2026-06-01T07:25:14.641Z",
       "note": "Parsed 22 CVPR workshop/challenge items; rejected 33 non-table rows.",
       "error": null,
       "parsedItemCount": 22,
@@ -489,25 +489,6 @@
           "stage": "Submission deadline",
           "source": "2077AI CVPR 2026 Challenges",
           "type": "challenge"
-        },
-        {
-          "id": "cvpr2077ai-2077ai-rising-star-award-may-22-2026",
-          "title": "2077AI Rising Star Award",
-          "deadline": "2026-05-22T23:59:59Z",
-          "dateRange": "May 22, 2026",
-          "location": "Online",
-          "isOnline": true,
-          "tags": [
-            "CVPR 2026",
-            "challenge",
-            "2077AI"
-          ],
-          "url": "https://www.2077ai.com/challenge-pages/challenges.html",
-          "status": "upcoming",
-          "description": "Parsed from the official 2077AI CVPR 2026 challenge page.",
-          "stage": "Award application deadline",
-          "source": "2077AI CVPR 2026 Challenges",
-          "type": "challenge"
         }
       ],
       "reachable": true,
@@ -515,10 +496,10 @@
       "finalUrl": "https://www.2077ai.com/challenge-pages/challenges.html",
       "title": "2077AI Challenges | CVPR 2026",
       "contentLength": 64617,
-      "fetchedAt": "2026-05-25T06:48:57.945Z",
-      "note": "Parsed 2 items from 2077AI challenge page.",
+      "fetchedAt": "2026-06-01T07:25:14.769Z",
+      "note": "Parsed 1 items from 2077AI challenge page.",
       "error": null,
-      "parsedItemCount": 2,
+      "parsedItemCount": 1,
       "invalidItemCount": 0
     },
     {
@@ -526,25 +507,6 @@
       "source": "EBMV @ ECCV 2026",
       "url": "https://eventbasemultimodalvision.github.io/",
       "items": [
-        {
-          "id": "eccv-ebmv-2026-ebmv-eccv-2026-challenge-submission-deadline-june-30-2026",
-          "title": "EBMV @ ECCV 2026 - Challenge submission deadline",
-          "deadline": "2026-06-30T23:59:59Z",
-          "dateRange": "June 30, 2026",
-          "location": "Online",
-          "isOnline": true,
-          "tags": [
-            "ECCV 2026",
-            "challenge",
-            "event-based vision"
-          ],
-          "url": "https://eventbasemultimodalvision.github.io/",
-          "status": "upcoming",
-          "description": "Parsed from the EBMV @ ECCV 2026 official workshop page.",
-          "stage": "Challenge submission deadline",
-          "source": "EBMV @ ECCV 2026",
-          "type": "challenge"
-        },
         {
           "id": "eccv-ebmv-2026-ebmv-eccv-2026-challenge-results-announcement-july-5-2026",
           "title": "EBMV @ ECCV 2026 - Challenge results announcement",
@@ -561,44 +523,6 @@
           "status": "upcoming",
           "description": "Parsed from the EBMV @ ECCV 2026 official workshop page.",
           "stage": "Challenge results announcement",
-          "source": "EBMV @ ECCV 2026",
-          "type": "challenge"
-        },
-        {
-          "id": "eccv-ebmv-2026-ebmv-eccv-2026-technical-report-deadline-july-10-2026",
-          "title": "EBMV @ ECCV 2026 - Technical report deadline",
-          "deadline": "2026-07-10T23:59:59Z",
-          "dateRange": "July 10, 2026",
-          "location": "Online",
-          "isOnline": true,
-          "tags": [
-            "ECCV 2026",
-            "challenge",
-            "event-based vision"
-          ],
-          "url": "https://eventbasemultimodalvision.github.io/",
-          "status": "upcoming",
-          "description": "Parsed from the EBMV @ ECCV 2026 official workshop page.",
-          "stage": "Technical report deadline",
-          "source": "EBMV @ ECCV 2026",
-          "type": "challenge"
-        },
-        {
-          "id": "eccv-ebmv-2026-ebmv-eccv-2026-workshop-paper-deadline-july-20-2026",
-          "title": "EBMV @ ECCV 2026 - Workshop paper deadline",
-          "deadline": "2026-07-20T23:59:59Z",
-          "dateRange": "July 20, 2026",
-          "location": "Online",
-          "isOnline": true,
-          "tags": [
-            "ECCV 2026",
-            "challenge",
-            "event-based vision"
-          ],
-          "url": "https://eventbasemultimodalvision.github.io/",
-          "status": "upcoming",
-          "description": "Parsed from the EBMV @ ECCV 2026 official workshop page.",
-          "stage": "Workshop paper deadline",
           "source": "EBMV @ ECCV 2026",
           "type": "challenge"
         },
@@ -626,11 +550,11 @@
       "httpStatus": 200,
       "finalUrl": "https://eventbasemultimodalvision.github.io/",
       "title": "EBMV @ ECCV 2026",
-      "contentLength": 32259,
-      "fetchedAt": "2026-05-25T06:48:57.946Z",
-      "note": "Parsed 5 EBMV ECCV items.",
+      "contentLength": 33002,
+      "fetchedAt": "2026-06-01T07:25:14.771Z",
+      "note": "Parsed 2 EBMV ECCV items.",
       "error": null,
-      "parsedItemCount": 5,
+      "parsedItemCount": 2,
       "invalidItemCount": 0
     },
     {
@@ -719,8 +643,8 @@
       "httpStatus": 200,
       "finalUrl": "https://emr-workshop.github.io/",
       "title": "EMR Workshop @ ECCV 2026",
-      "contentLength": 46867,
-      "fetchedAt": "2026-05-25T06:48:57.947Z",
+      "contentLength": 46031,
+      "fetchedAt": "2026-06-01T07:25:14.772Z",
       "note": "Parsed 4 EMR ECCV items.",
       "error": null,
       "parsedItemCount": 4,
@@ -735,8 +659,8 @@
       "httpStatus": 200,
       "finalUrl": "https://iccv.thecvf.com/",
       "title": "2025 Conference",
-      "contentLength": 44901,
-      "fetchedAt": "2026-05-25T06:48:57.949Z",
+      "contentLength": 44953,
+      "fetchedAt": "2026-06-01T07:25:14.773Z",
       "note": "Source reachable. Curated data/items.json preserved until item parser is implemented.",
       "error": null
     }
